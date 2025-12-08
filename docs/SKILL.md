@@ -1,6 +1,6 @@
 ---
 name: smart-workflows
-description: B-SMART-ART workflow engine with MCB (Multiconnection Binary Databridge) and AMUM-QCI-ETHIC module. Dual database architecture using DuckDB (analytics) + SurrealDB (graph). Uses Blender 5.0 (bpy) and UE5 Remote Control. Use when (1) MCB agent-to-agent communication (INQC protocol), (2) AMUM 3→6→9 progressive alignment, (3) QCI quantum coherence states, (4) ETHIC principles enforcement (Marcel/Anthropic/EU AI Act), (5) SurrealDB graph relationships, (6) DuckDB SQL workflows, (7) ML inference with infera/vss, (8) Blender 5.0 headless processing, (9) UE5 scene control, (10) DuckLake time travel.
+description: B-SMART-ART workflow engine with MCP-B (Master Client Bridge) and AMUM-QCI-ETHIC module. Dual database architecture using DuckDB (analytics) + SurrealDB (graph). Uses Blender 5.0 (bpy) and UE5 Remote Control. Use when (1) MCP-B agent-to-agent communication (INQC protocol), (2) AMUM 3→6→9 progressive alignment, (3) QCI quantum coherence states, (4) ETHIC principles enforcement (Marcel/Anthropic/EU AI Act), (5) SurrealDB graph relationships, (6) DuckDB SQL workflows, (7) ML inference with infera/vss, (8) Blender 5.0 headless processing, (9) UE5 scene control, (10) DuckLake time travel.
 ---
 
 # Smart Workflows (B-SMART-ART)
@@ -21,11 +21,10 @@ The complete data pipeline from Human Intent to Visual Experience:
 │  The bidirectional flow between Human and Machine:                          │
 │  Intent → Analyse → Feedback → Refinement → Generation → Experience        │
 │                                                                             │
-│  MCB = Multiconnection Binary Databridge                                    │
+│  MCP-B = Master Client Bridge                                               │
 │  ───────────────────────────────────────────                                │
-│  M: Model (DuckLake versioned storage + time travel)                        │
-│  C: Connection (Query.Farm Extensions, MCP Protocol)                        │
-│  B: Binary (0 = nicht verbunden, 1 = ALLES CONNECTED)                       │
+│  Connects everything, brings data flow together.                            │
+│  Binary: 0 = nicht verbunden, 1 = ALLES CONNECTED                           │
 │                                                                             │
 │  The Binary Decision:                                                       │
 │      ●───────●───────●                                                      │
@@ -34,9 +33,9 @@ The complete data pipeline from Human Intent to Visual Experience:
 │     ╲│╱     ╲│╱     ╲│╱                                                     │
 │      ●───────●───────●                                                      │
 │                                                                             │
-│  MCB vs MCP:                                                                │
+│  MCP-B vs MCP:                                                              │
 │  • MCP = Model Context Protocol (Brücke ZUR Community)                      │
-│  • MCB = Multiconnection Binary (Der binäre Unterschied)                    │
+│  • MCP-B = Master Client Bridge (Der binäre Unterschied)                    │
 │                                                                             │
 │  SMART = Spatial + Model + Analytics + Realtime + Tools                     │
 │  ───────────────────────────────────────────────────                        │
@@ -66,7 +65,7 @@ The complete data pipeline from Human Intent to Visual Experience:
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-Complete Flow: AMUM → MCB → SMART → B → ART → TWYH → (back to AMUM)
+Complete Flow: AMUM → MCP-B → SMART → B → ART → TWYH → (back to AMUM)
 
 ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
 │  SMART   │     │    B     │     │   ART    │     │  Output  │
@@ -92,15 +91,15 @@ Complete Flow: AMUM → MCB → SMART → B → ART → TWYH → (back to AMUM)
 
 ---
 
-## MCB Databridge Protocol
+## MCP-B Protocol
 
-**Multiconnection Binary Databridge** - Multi-layer encoding for agent-to-agent communication.
+**Master Client Bridge** - Connects everything, brings data flow together. Multi-layer encoding for agent-to-agent communication.
 
 ### Protocol Layers
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                       MCB DATABRIDGE ENCODING                               │
+│                       MCP-B PROTOCOL ENCODING                               │
 │  ═══════════════════════════════════════════════════════════════════════   │
 │                                                                             │
 │  Layer 1: HEX/DECIMAL ROUTING                                               │
@@ -135,7 +134,7 @@ Complete Flow: AMUM → MCB → SMART → B → ART → TWYH → (back to AMUM)
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│  MCB MESSAGE STRUCTURE                                         │
+│  MCP-B MESSAGE STRUCTURE                                       │
 ├────────────────────────────────────────────────────────────────┤
 │                                                                │
 │  HEADER (Layer 1):                                             │
@@ -167,7 +166,7 @@ Complete Flow: AMUM → MCB → SMART → B → ART → TWYH → (back to AMUM)
 ### Encoding/Decoding (SQL)
 
 ```sql
--- MCB Message Parser
+-- MCP-B Message Parser
 CREATE TABLE mcb_messages (
     id INTEGER PRIMARY KEY,
     raw_message TEXT,
@@ -179,7 +178,7 @@ CREATE TABLE mcb_messages (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Parse MCB Header (Layer 1)
+-- Parse MCP-B Header (Layer 1)
 CREATE MACRO mcb_parse_header(msg) AS (
     SELECT 
         regexp_extract(msg, '^(\w+)\s+(\w+)', 1) AS source_id,
@@ -196,7 +195,7 @@ CREATE MACRO mcb_parse_command(msg) AS (
     regexp_extract(msg, '•\s*([INQC])$', 1)
 );
 
--- Encode MCB Message
+-- Encode MCP-B Message
 CREATE MACRO mcb_encode(source, dest, state, cmd, payload) AS (
     source || ' ' || dest || ' ' || 
     state || ' • ' || 
@@ -233,11 +232,11 @@ Bit 8-15: Reserved/Custom
 ### Integration with B-SMART-ART
 
 ```
-MCB Databridge fits into the architecture:
+MCP-B fits into the architecture:
 
-AMUM (Human↔Machine) 
+AMUM (Human↔Machine)
     ↓
-MCB (Multiconnection Binary Databridge) ← Protocol Layer
+MCP-B (Master Client Bridge) ← Protocol Layer
     ↓
 SMART (DuckDB + Extensions)
     ↓
@@ -245,7 +244,7 @@ B (Blender Bridge)
     ↓
 ART (Visual Output)
 
-MCB handles:
+MCP-B handles:
 • Agent-to-Agent communication
 • Multi-model orchestration  
 • State synchronization
@@ -260,7 +259,7 @@ MCB handles:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                     MCB DUAL DATABASE ARCHITECTURE                          │
+│                    MCP-B DUAL DATABASE ARCHITECTURE                         │
 │  ═══════════════════════════════════════════════════════════════════════   │
 │                                                                             │
 │  ┌──────────────────────┐         ┌──────────────────────┐                 │
@@ -277,8 +276,8 @@ MCB handles:
 │              └──────────────┬───────────────┘                               │
 │                             │                                               │
 │                    ┌────────▼────────┐                                      │
-│                    │  MCB Databridge │                                      │
-│                    │  (Protocol)     │                                      │
+│                    │     MCP-B      │                                      │
+│                    │   (Protocol)   │                                      │
 │                    └─────────────────┘                                      │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -287,7 +286,7 @@ MCB handles:
 #### SurrealDB Schema (SurrealQL)
 
 ```sql
--- MCB Agents Registry
+-- MCP-B Agents Registry
 DEFINE TABLE mcb_agents SCHEMAFULL;
 DEFINE FIELD name ON mcb_agents TYPE string;
 DEFINE FIELD agent_id ON mcb_agents TYPE string;
@@ -296,7 +295,7 @@ DEFINE FIELD capabilities ON mcb_agents TYPE array;
 DEFINE FIELD created_at ON mcb_agents TYPE datetime DEFAULT time::now();
 DEFINE FIELD last_seen ON mcb_agents TYPE datetime;
 
--- MCB Messages (INQC Protocol)
+-- MCP-B Messages (INQC Protocol)
 DEFINE TABLE mcb_messages SCHEMAFULL;
 DEFINE FIELD raw_message ON mcb_messages TYPE string;
 DEFINE FIELD source_id ON mcb_messages TYPE string;
@@ -424,7 +423,7 @@ SurrealDB MCP Tool supports:
 4. SurrealDB Cloud:      connect_endpoint('cloud:instance_id')
 ```
 
-### AMUM QCI ETHIC Module
+### AMUM-QCI-ETHIC Module
 
 **AI ↔ Mensch Understanding Matrix with Quantum Coherence Interface**
 
@@ -575,7 +574,7 @@ CREATE amum_sessions:phase3 SET
 #### Integrated Network Query
 
 ```sql
--- Full AMUM-QCI-ETHIC-MCB view
+-- Full AMUM-QCI-ETHIC-MCP-B view
 SELECT 
     id, name, agent_id, binary_state,
     ->has_qci->qci_states.coherence_level AS qci_coherence,
