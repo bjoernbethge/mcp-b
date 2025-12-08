@@ -24,25 +24,25 @@ The complete data pipeline from Human Intent to Visual Experience:
 │  MCP-B = Master Client Bridge                                               │
 │  ───────────────────────────────────────────                                │
 │  Connects everything, brings data flow together.                            │
-│  Binary: 0 = nicht verbunden, 1 = ALLES CONNECTED                           │
+│  Binary: 0 = not connected, 1 = ALL CONNECTED                               │
 │                                                                             │
 │  The Binary Decision:                                                       │
 │      ●───────●───────●                                                      │
 │     ╱│╲     ╱│╲     ╱│╲                                                     │
-│    ● │ ●   ● │ ●   ● │ ●    ← Alle Punkte verbunden = Alles drin!          │
+│    ● │ ●   ● │ ●   ● │ ●    ← All points connected = Everything included!  │
 │     ╲│╱     ╲│╱     ╲│╱                                                     │
 │      ●───────●───────●                                                      │
 │                                                                             │
 │  MCP-B vs MCP:                                                              │
-│  • MCP = Model Context Protocol (Brücke ZUR Community)                      │
-│  • MCP-B = Master Client Bridge (Der binäre Unterschied)                    │
+│  • MCP = Model Context Protocol (Bridge TO the community)                   │
+│  • MCP-B = Master Client Bridge (The binary difference)                     │
 │                                                                             │
 │  SMART = Spatial + Model + Analytics + Realtime + Tools                     │
 │  ───────────────────────────────────────────────────                        │
-│  S: Spatial (lindel, a5, spatial) - Wo sind die Daten?                     │
-│  M: Model (infera ONNX, vss HNSW) - Was bedeuten sie?                      │
-│  A: Analytics (datasketches, bitfilters, jsonata) - Was lernen wir?        │
-│  R: Realtime (radio, http_client, ducklake) - Wie fließen sie?             │
+│  S: Spatial (lindel, a5, spatial) - Where is the data?                     │
+│  M: Model (infera ONNX, vss HNSW) - What does it mean?                     │
+│  A: Analytics (datasketches, bitfilters, jsonata) - What do we learn?      │
+│  R: Realtime (radio, http_client, ducklake) - How does it flow?            │
 │  T: Tools (shellfs, hashfuncs, crypto, textplot, minijinja)                │
 │                                                                             │
 │  B = Blender 5.0 (The Bridge)  ← NEW!                                       │
@@ -55,11 +55,11 @@ The complete data pipeline from Human Intent to Visual Experience:
 │                                                                             │
 │  ART = Augmented + Rendering + Transfer                                     │
 │  ────────────────────────────────────                                       │
-│  A: Augmented Reality/Intelligence (erweiterte Darstellung)                 │
+│  A: Augmented Reality/Intelligence (enhanced visualization)                 │
 │  R: Rendering (UE5 Remote Control, Three.js WebGPU)                         │
-│  T: Transfer (die Brücke SQL → Visual → User)                               │
+│  T: Transfer (the bridge SQL → Visual → User)                               │
 │                                                                             │
-│  TWYH = Take What You Have ("Nimm was du hast")                            │
+│  TWYH = Take What You Have ("Use what you've got")                         │
 │  ─────────────────────────────────────────────                              │
 │  Ship working code. Use existing solutions. Build bridges.                  │
 │                                                                             │
@@ -425,7 +425,7 @@ SurrealDB MCP Tool supports:
 
 ### AMUM-QCI-ETHIC Module
 
-**AI ↔ Mensch Understanding Matrix with Quantum Coherence Interface**
+**AI ↔ Human Understanding Matrix with Quantum Coherence Interface**
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
