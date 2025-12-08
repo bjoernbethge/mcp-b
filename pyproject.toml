@@ -12,8 +12,9 @@ authors = [
     { name = "Björn Bethge", email = "bjoern.bethge@gmail.com" }
 ]
 keywords = [
-    "mcb", "master-client-bridge", "mcp", "agents", "multi-agent", "protocol",
-    "amum", "qci", "ethic", "duckdb", "surrealdb", "bridge", "dataflow"
+    "mcp-b", "master-client-bridge", "mcp", "agents", "multi-agent", "protocol",
+    "amum", "qci", "ethic", "duckdb", "surrealdb", "bridge", "dataflow",
+    "smartace", "agentic", "context-engineering"
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
