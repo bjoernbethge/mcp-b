@@ -14,7 +14,7 @@ Quick Start:
     from mcp_b import QCI, QCIState
 """
 
-__version__ = "0.1.3"
+__version__ = "0.2.0"
 __author__ = "Björn Bethge"
 
 # Protocol exports
@@ -47,6 +47,16 @@ from .ethic import (
     EthicViolation,
     get_ethic,
     check_ethical,
+    # ethics-model frameworks
+    MoralFramework,
+    ManipulationTechnique,
+    FramingType,
+    FrameworkAnalysis,
+    ManipulationAnalysis,
+    EthicsAnalysis,
+    get_ethics_prompt,
+    FRAMEWORK_PROMPTS,
+    MANIPULATION_PROMPTS,
 )
 
 # QCI exports
@@ -85,6 +95,16 @@ __all__ = [
     "EthicViolation",
     "get_ethic",
     "check_ethical",
+    # ethics-model frameworks
+    "MoralFramework",
+    "ManipulationTechnique",
+    "FramingType",
+    "FrameworkAnalysis",
+    "ManipulationAnalysis",
+    "EthicsAnalysis",
+    "get_ethics_prompt",
+    "FRAMEWORK_PROMPTS",
+    "MANIPULATION_PROMPTS",
     # QCI
     "QCI",
     "QCIState",

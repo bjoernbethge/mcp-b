@@ -429,7 +429,7 @@ ORDER BY message_count DESC;
 
 -- Ethic compliance summary
 CREATE OR REPLACE VIEW ethic_compliance AS
-SELECT 
+SELECT
     p.category,
     p.name,
     p.priority,
@@ -440,3 +440,157 @@ LEFT JOIN ethic_violations v ON p.principle_id = v.principle_id
 WHERE p.active = TRUE
 GROUP BY p.category, p.name, p.priority
 ORDER BY p.priority DESC;
+
+-- ============================================
+-- ETHICS-MODEL ANALYSIS TABLES
+-- (from bjoernbethge/ethics-model)
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS ethics_analysis (
+    id INTEGER PRIMARY KEY,
+    text TEXT NOT NULL,
+    ethics_score DOUBLE CHECK (ethics_score BETWEEN 0 AND 1),
+    manipulation_score DOUBLE CHECK (manipulation_score BETWEEN 0 AND 1),
+    framing_type VARCHAR CHECK (framing_type IN (
+        'loss_gain', 'moral', 'episodic_thematic',
+        'problem_solution', 'conflict_consensus', 'urgency_deliberation'
+    )),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS framework_analysis (
+    id INTEGER PRIMARY KEY,
+    ethics_id INTEGER REFERENCES ethics_analysis(id),
+    framework VARCHAR CHECK (framework IN (
+        'deontological', 'utilitarian', 'virtue', 'narrative', 'care'
+    )),
+    score DOUBLE CHECK (score BETWEEN 0 AND 1),
+    reasoning TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS manipulation_detection (
+    id INTEGER PRIMARY KEY,
+    ethics_id INTEGER REFERENCES ethics_analysis(id),
+    technique VARCHAR CHECK (technique IN (
+        'emotional_appeal', 'false_dichotomy', 'appeal_to_authority',
+        'bandwagon', 'loaded_language', 'cherry_picking',
+        'straw_man', 'slippery_slope'
+    )),
+    detected BOOLEAN,
+    confidence DOUBLE CHECK (confidence BETWEEN 0 AND 1),
+    evidence TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
+-- ETHICS-MODEL LLM ANALYSIS MACROS
+-- ============================================
+
+-- Build the ethics analysis prompt
+CREATE OR REPLACE MACRO ethics_prompt(text_input) AS (
+    'Analyze the following text for ethical considerations.
+
+TEXT: ' || text_input || '
+
+MORAL FRAMEWORKS to consider:
+- Deontological ethics (Kant): Evaluate based on duty, rules, and moral obligations.
+- Utilitarian ethics (Mill): Evaluate based on consequences and outcomes.
+- Virtue ethics (Aristotle): Evaluate based on character and virtues.
+- Narrative ethics: Evaluate based on storytelling and framing.
+- Care ethics (Gilligan): Evaluate based on relationships and responsibility.
+
+MANIPULATION TECHNIQUES to detect:
+- emotional_appeal: Uses emotions instead of logic to persuade
+- false_dichotomy: Presents only two options when more exist
+- appeal_to_authority: Claims truth because an authority says so
+- bandwagon: Claims correctness because many believe it
+- loaded_language: Uses emotionally charged words
+- cherry_picking: Selects only favorable evidence
+- straw_man: Misrepresents an argument
+- slippery_slope: Claims extreme consequences without evidence
+
+Respond with JSON:
+{
+    "ethics_score": 0.0-1.0,
+    "frameworks": {
+        "deontological": {"score": 0.0-1.0, "reasoning": "..."},
+        "utilitarian": {"score": 0.0-1.0, "reasoning": "..."},
+        "virtue": {"score": 0.0-1.0, "reasoning": "..."},
+        "narrative": {"score": 0.0-1.0, "reasoning": "..."},
+        "care": {"score": 0.0-1.0, "reasoning": "..."}
+    },
+    "manipulation": {
+        "emotional_appeal": {"detected": true/false, "confidence": 0.0-1.0, "evidence": "..."},
+        "false_dichotomy": {"detected": true/false, "confidence": 0.0-1.0, "evidence": "..."},
+        "appeal_to_authority": {"detected": true/false, "confidence": 0.0-1.0, "evidence": "..."},
+        "bandwagon": {"detected": true/false, "confidence": 0.0-1.0, "evidence": "..."},
+        "loaded_language": {"detected": true/false, "confidence": 0.0-1.0, "evidence": "..."},
+        "cherry_picking": {"detected": true/false, "confidence": 0.0-1.0, "evidence": "..."},
+        "straw_man": {"detected": true/false, "confidence": 0.0-1.0, "evidence": "..."},
+        "slippery_slope": {"detected": true/false, "confidence": 0.0-1.0, "evidence": "..."}
+    },
+    "framing_type": "loss_gain|moral|episodic_thematic|problem_solution|conflict_consensus|urgency_deliberation|null"
+}'
+);
+
+-- Run ethics analysis via LLM (returns JSON)
+CREATE OR REPLACE MACRO ethics_analyze(text_input) AS (
+    ollama_chat('llama3.2', ethics_prompt(text_input))
+);
+
+-- Extract ethics score from analysis
+CREATE OR REPLACE MACRO ethics_score(analysis_json) AS (
+    json_extract(analysis_json, '$.ethics_score')::DOUBLE
+);
+
+-- Extract framework score from analysis
+CREATE OR REPLACE MACRO framework_score(analysis_json, framework_name) AS (
+    json_extract(analysis_json, '$.frameworks.' || framework_name || '.score')::DOUBLE
+);
+
+-- Check if manipulation detected
+CREATE OR REPLACE MACRO manipulation_detected(analysis_json, technique_name) AS (
+    json_extract(analysis_json, '$.manipulation.' || technique_name || '.detected')::BOOLEAN
+);
+
+-- Get manipulation confidence
+CREATE OR REPLACE MACRO manipulation_confidence(analysis_json, technique_name) AS (
+    json_extract(analysis_json, '$.manipulation.' || technique_name || '.confidence')::DOUBLE
+);
+
+-- Quick ethics check (returns score only)
+CREATE OR REPLACE MACRO quick_ethics(text_input) AS (
+    ethics_score(ethics_analyze(text_input))
+);
+
+-- Check for any manipulation (returns true if any detected)
+CREATE OR REPLACE MACRO has_manipulation(analysis_json) AS (
+    manipulation_detected(analysis_json, 'emotional_appeal') OR
+    manipulation_detected(analysis_json, 'false_dichotomy') OR
+    manipulation_detected(analysis_json, 'appeal_to_authority') OR
+    manipulation_detected(analysis_json, 'bandwagon') OR
+    manipulation_detected(analysis_json, 'loaded_language') OR
+    manipulation_detected(analysis_json, 'cherry_picking') OR
+    manipulation_detected(analysis_json, 'straw_man') OR
+    manipulation_detected(analysis_json, 'slippery_slope')
+);
+
+-- ============================================
+-- ETHICS ANALYSIS VIEW
+-- ============================================
+
+CREATE OR REPLACE VIEW ethics_summary AS
+SELECT
+    e.id,
+    e.ethics_score,
+    e.manipulation_score,
+    e.framing_type,
+    COUNT(DISTINCT CASE WHEN m.detected THEN m.technique END) as manipulation_count,
+    AVG(f.score) as avg_framework_score,
+    e.timestamp
+FROM ethics_analysis e
+LEFT JOIN framework_analysis f ON e.id = f.ethics_id
+LEFT JOIN manipulation_detection m ON e.id = m.ethics_id
+GROUP BY e.id, e.ethics_score, e.manipulation_score, e.framing_type, e.timestamp
+ORDER BY e.timestamp DESC;

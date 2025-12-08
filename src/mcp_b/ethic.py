@@ -6,6 +6,7 @@ AI Ethics Framework combining:
 - Anthropic Guidelines (no harm, transparency)
 - EU AI Act Requirements (accountability, fairness)
 - WoAI Additions (sandbox default, sustainable AI)
+- ethics-model Frameworks (from bjoernbethge/ethics-model)
 
 Categories:
 - human_dignity: AI serves humans
@@ -16,6 +17,18 @@ Categories:
 - safety: No harm, sandbox default
 - sustainability: Efficient over wasteful
 - autonomy: User can override
+
+Moral Frameworks (ethics-model):
+- deontological: Duty-based rules
+- utilitarian: Consequence analysis
+- virtue: Character evaluation
+- narrative: Story/framing analysis
+- care: Relationship focus
+
+Manipulation Detection (ethics-model):
+- emotional_appeal, false_dichotomy, appeal_to_authority
+- bandwagon, loaded_language, cherry_picking
+- straw_man, slippery_slope
 """
 
 from dataclasses import dataclass, field
@@ -42,6 +55,7 @@ class EthicSource(Enum):
     ANTHROPIC = "anthropic"
     EU_AI_ACT = "eu_ai_act"
     WOAI = "woai"
+    ETHICS_MODEL = "ethics_model"
 
 
 class EthicSeverity(Enum):
@@ -49,6 +63,41 @@ class EthicSeverity(Enum):
     BLOCK = "block"   # Stop execution
     WARN = "warn"     # Log warning, continue
     LOG = "log"       # Log only
+
+
+# ============================================
+# ETHICS-MODEL FRAMEWORKS (from bjoernbethge/ethics-model)
+# ============================================
+
+class MoralFramework(Enum):
+    """Moral frameworks for ethical analysis"""
+    DEONTOLOGICAL = "deontological"  # Duty-based rules (Kant)
+    UTILITARIAN = "utilitarian"      # Consequence analysis (Mill)
+    VIRTUE = "virtue"                # Character evaluation (Aristotle)
+    NARRATIVE = "narrative"          # Story/framing analysis
+    CARE = "care"                    # Relationship focus (Gilligan)
+
+
+class ManipulationTechnique(Enum):
+    """Manipulation detection categories"""
+    EMOTIONAL_APPEAL = "emotional_appeal"
+    FALSE_DICHOTOMY = "false_dichotomy"
+    APPEAL_TO_AUTHORITY = "appeal_to_authority"
+    BANDWAGON = "bandwagon"
+    LOADED_LANGUAGE = "loaded_language"
+    CHERRY_PICKING = "cherry_picking"
+    STRAW_MAN = "straw_man"
+    SLIPPERY_SLOPE = "slippery_slope"
+
+
+class FramingType(Enum):
+    """Framing analysis categories"""
+    LOSS_GAIN = "loss_gain"
+    MORAL = "moral"
+    EPISODIC_THEMATIC = "episodic_thematic"
+    PROBLEM_SOLUTION = "problem_solution"
+    CONFLICT_CONSENSUS = "conflict_consensus"
+    URGENCY_DELIBERATION = "urgency_deliberation"
 
 
 @dataclass
@@ -276,3 +325,161 @@ def check_ethical(action: str, **context) -> bool:
     ethic = get_ethic()
     violations = ethic.check_action(action, context)
     return not ethic.should_block(violations)
+
+
+# ============================================
+# ETHICS-MODEL ANALYSIS STRUCTURES
+# ============================================
+
+@dataclass
+class FrameworkAnalysis:
+    """Analysis result for a single moral framework"""
+    framework: MoralFramework
+    score: float  # 0-1, higher = more aligned
+    reasoning: str
+
+    def to_dict(self) -> dict:
+        return {
+            "framework": self.framework.value,
+            "score": self.score,
+            "reasoning": self.reasoning
+        }
+
+
+@dataclass
+class ManipulationAnalysis:
+    """Analysis result for manipulation detection"""
+    technique: ManipulationTechnique
+    detected: bool
+    confidence: float  # 0-1
+    evidence: str
+
+    def to_dict(self) -> dict:
+        return {
+            "technique": self.technique.value,
+            "detected": self.detected,
+            "confidence": self.confidence,
+            "evidence": self.evidence
+        }
+
+
+@dataclass
+class EthicsAnalysis:
+    """Complete ethics analysis result"""
+    text: str
+    ethics_score: float  # 0-1, overall ethical score
+    framework_scores: list[FrameworkAnalysis]
+    manipulation_flags: list[ManipulationAnalysis]
+    framing_type: Optional[FramingType] = None
+    timestamp: datetime = field(default_factory=datetime.now)
+
+    def to_dict(self) -> dict:
+        return {
+            "text": self.text[:100] + "..." if len(self.text) > 100 else self.text,
+            "ethics_score": self.ethics_score,
+            "framework_scores": [f.to_dict() for f in self.framework_scores],
+            "manipulation_flags": [m.to_dict() for m in self.manipulation_flags],
+            "framing_type": self.framing_type.value if self.framing_type else None,
+            "timestamp": self.timestamp.isoformat()
+        }
+
+    @property
+    def has_manipulation(self) -> bool:
+        """Check if any manipulation was detected"""
+        return any(m.detected for m in self.manipulation_flags)
+
+    @property
+    def manipulation_score(self) -> float:
+        """Average manipulation confidence (0 if none detected)"""
+        detected = [m for m in self.manipulation_flags if m.detected]
+        if not detected:
+            return 0.0
+        return sum(m.confidence for m in detected) / len(detected)
+
+
+# ============================================
+# FRAMEWORK DESCRIPTIONS (for LLM prompts)
+# ============================================
+
+FRAMEWORK_PROMPTS = {
+    MoralFramework.DEONTOLOGICAL: (
+        "Deontological ethics (Kant): Evaluate based on duty, rules, and moral obligations. "
+        "Does the action follow universal moral laws? Is it treating people as ends, not means?"
+    ),
+    MoralFramework.UTILITARIAN: (
+        "Utilitarian ethics (Mill): Evaluate based on consequences and outcomes. "
+        "Does the action maximize overall well-being? What are the costs and benefits?"
+    ),
+    MoralFramework.VIRTUE: (
+        "Virtue ethics (Aristotle): Evaluate based on character and virtues. "
+        "Does the action reflect virtues like courage, honesty, compassion, wisdom?"
+    ),
+    MoralFramework.NARRATIVE: (
+        "Narrative ethics: Evaluate based on storytelling and framing. "
+        "How is the situation being presented? What perspectives are included or excluded?"
+    ),
+    MoralFramework.CARE: (
+        "Care ethics (Gilligan): Evaluate based on relationships and responsibility. "
+        "How does the action affect relationships? Does it show care for those involved?"
+    ),
+}
+
+MANIPULATION_PROMPTS = {
+    ManipulationTechnique.EMOTIONAL_APPEAL: (
+        "Emotional appeal: Uses emotions (fear, anger, pity) instead of logic to persuade."
+    ),
+    ManipulationTechnique.FALSE_DICHOTOMY: (
+        "False dichotomy: Presents only two options when more exist."
+    ),
+    ManipulationTechnique.APPEAL_TO_AUTHORITY: (
+        "Appeal to authority: Claims something is true because an authority says so."
+    ),
+    ManipulationTechnique.BANDWAGON: (
+        "Bandwagon: Claims something is right because many people believe or do it."
+    ),
+    ManipulationTechnique.LOADED_LANGUAGE: (
+        "Loaded language: Uses emotionally charged words to influence without argument."
+    ),
+    ManipulationTechnique.CHERRY_PICKING: (
+        "Cherry picking: Selects only favorable evidence while ignoring contradictory data."
+    ),
+    ManipulationTechnique.STRAW_MAN: (
+        "Straw man: Misrepresents an argument to make it easier to attack."
+    ),
+    ManipulationTechnique.SLIPPERY_SLOPE: (
+        "Slippery slope: Claims one event will lead to extreme consequences without evidence."
+    ),
+}
+
+
+def get_ethics_prompt(text: str) -> str:
+    """Generate a prompt for LLM-based ethics analysis"""
+    frameworks = "\n".join(f"- {desc}" for desc in FRAMEWORK_PROMPTS.values())
+    manipulation = "\n".join(f"- {desc}" for desc in MANIPULATION_PROMPTS.values())
+
+    return f"""Analyze the following text for ethical considerations.
+
+TEXT: {text}
+
+MORAL FRAMEWORKS to consider:
+{frameworks}
+
+MANIPULATION TECHNIQUES to detect:
+{manipulation}
+
+Respond with JSON:
+{{
+    "ethics_score": 0.0-1.0,
+    "frameworks": {{
+        "deontological": {{"score": 0.0-1.0, "reasoning": "..."}},
+        "utilitarian": {{"score": 0.0-1.0, "reasoning": "..."}},
+        "virtue": {{"score": 0.0-1.0, "reasoning": "..."}},
+        "narrative": {{"score": 0.0-1.0, "reasoning": "..."}},
+        "care": {{"score": 0.0-1.0, "reasoning": "..."}}
+    }},
+    "manipulation": {{
+        "emotional_appeal": {{"detected": true/false, "confidence": 0.0-1.0, "evidence": "..."}},
+        ...
+    }},
+    "framing_type": "loss_gain|moral|episodic_thematic|problem_solution|conflict_consensus|urgency_deliberation|null"
+}}"""

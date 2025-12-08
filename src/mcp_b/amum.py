@@ -1,5 +1,5 @@
 """
-AMUM (AI ↔ Mensch Understanding Matrix)
+AMUM (AI ↔ Human Understanding Matrix)
 
 Progressive Alignment System: 3 → 6 → 9 Workflow
 
