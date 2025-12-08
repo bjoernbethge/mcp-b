@@ -1,6 +1,6 @@
-# MCB Databridge
+# MCB - Master Client Bridge
 
-**Multiconnection Binary Databridge Protocol with AMUM-QCI-ETHIC Module**
+**Connects everything, brings data flow together.**
 
 A complete agent communication framework combining:
 - **MCB Protocol**: 4-layer encoding for agent-to-agent messaging
@@ -11,13 +11,28 @@ A complete agent communication framework combining:
 ## Installation
 
 ```bash
-pip install mcb-databridge
+# Via pip
+pip install mcb
+
+# Via uv
+uvx mcb demo
 
 # With SurrealDB support
-pip install mcb-databridge[surrealdb]
+pip install mcb[surrealdb]
 
 # Full installation
-pip install mcb-databridge[full]
+pip install mcb[full]
+```
+
+## CLI Usage
+
+```bash
+mcb demo                              # Run demo
+mcb encode "Hello" -s 5510 -d 7C1     # Encode message
+mcb decode "5510 7C1 ..."             # Decode message
+mcb ethic list                        # List ethical principles
+mcb qci status                        # QCI network status
+mcb version                           # Show version
 ```
 
 ## Quick Start
@@ -57,7 +72,7 @@ result = quick_alignment(
     select_1=1,
     expand_6=["Text", "Image", "Voice", "Multi", "Pro", "Suite"],
     select_2=4,
-    converge_9=["GPT-4", "Claude", "Gemini", "Ollama", "Hybrid", 
+    converge_9=["GPT-4", "Claude", "Gemini", "Ollama", "Hybrid",
                 "Edge", "ElevenLabs", "OpenAI", "Local"],
     select_3=6
 )
@@ -105,7 +120,7 @@ for p in ethic.get_by_category(EthicCategory.SAFETY):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    MCB DATABRIDGE ARCHITECTURE                              │
+│                    MCB - MASTER CLIENT BRIDGE                               │
 │  ═══════════════════════════════════════════════════════════════════════   │
 │                                                                             │
 │  ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐                  │
@@ -186,7 +201,7 @@ SELECT * FROM ethic_compliance;
 IMPORT FILE schemas/surrealdb.surql;
 
 -- Query relationships
-SELECT 
+SELECT
     name,
     ->has_qci->qci_states.coherence_level AS coherence,
     ->follows_ethic->ethic_principles.name AS principles
@@ -196,9 +211,10 @@ FROM mcb_agents;
 ## File Structure
 
 ```
-mcb-databridge/
+mcb/
 ├── src/mcb/
 │   ├── __init__.py      # Package exports
+│   ├── __main__.py      # CLI entry point
 │   ├── protocol.py      # MCB Protocol (INQC)
 │   ├── amum.py          # AMUM Alignment
 │   ├── qci.py           # QCI Coherence
@@ -217,17 +233,16 @@ mcb-databridge/
 
 | | MCB | MCP |
 |---|-----|-----|
-| **Full Name** | Multiconnection Binary Databridge | Model Context Protocol |
+| **Full Name** | Master Client Bridge | Model Context Protocol |
 | **Purpose** | Internal agent-to-agent | Bridge to community |
 | **Binary** | 0 = not connected, 1 = ALL CONNECTED | N/A |
 | **Encoding** | 4-layer (hex/binary/dot/INQC) | JSON-RPC |
 
 ## License
 
-MIT License - HACKA-DEV-BJOERN / HACKASPACE
+MIT License - Björn Bethge
 
 ## Links
 
-- [GitHub](https://github.com/hackaspace/mcb-databridge)
-- [Documentation](https://github.com/hackaspace/mcb-databridge#readme)
-- [Smart Workflows Skill](https://claude.ai/skills/smart-workflows)
+- [GitHub](https://github.com/bjoernbethge/mcb)
+- [PyPI](https://pypi.org/project/mcb/)
