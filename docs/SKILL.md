@@ -1,19 +1,20 @@
 ---
 name: smart-workflows
-description: B-SMART-ART workflow engine with MCP-B (Master Client Bridge) and AMUM-QCI-ETHIC module. Dual database architecture using DuckDB (analytics) + SurrealDB (graph). Uses Blender 5.0 (bpy) and UE5 Remote Control. Use when (1) MCP-B agent-to-agent communication (INQC protocol), (2) AMUM 3→6→9 progressive alignment, (3) QCI quantum coherence states, (4) ETHIC principles enforcement (Marcel/Anthropic/EU AI Act), (5) SurrealDB graph relationships, (6) DuckDB SQL workflows, (7) ML inference with infera/vss, (8) Blender 5.0 headless processing, (9) UE5 scene control, (10) DuckLake time travel.
+description: SmartACE (Agentic Context Engineering) workflow engine with MCP-B (Master Client Bridge) and AMUM-QCI-ETHIC module. Dual database architecture using DuckDB (analytics) + SurrealDB (graph). Uses Blender 5.0 (bpy) and UE5 Remote Control. Use when (1) MCP-B agent-to-agent communication (INQC protocol), (2) AMUM 3→6→9 progressive alignment, (3) QCI quantum coherence states, (4) ETHIC principles enforcement (Marcel/Anthropic/EU AI Act), (5) SurrealDB graph relationships, (6) DuckDB SQL workflows, (7) ML inference with infera/vss, (8) Blender 5.0 headless processing, (9) UE5 scene control, (10) DuckLake time travel.
 ---
 
-# Smart Workflows (B-SMART-ART)
+# Smart Workflows (SmartACE)
 
 100% SQL-native self-improving workflows with Blender 5.0 as the data-to-visual bridge. No `requests`. No Python HTTP libs. Just DuckDB + Query.Farm extensions + bpy.
 
-## Architecture: B-SMART-ART
+## Architecture: SmartACE
 
 The complete data pipeline from Human Intent to Visual Experience:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                         B-SMART-ART ARCHITECTURE                            │
+│                      SmartACE ARCHITECTURE                                  │
+│               (Agentic Context Engineering)                                 │
 │  ═══════════════════════════════════════════════════════════════════════   │
 │                                                                             │
 │  AMUM = Analyse → User → Model → User → Model                              │
@@ -65,7 +66,7 @@ The complete data pipeline from Human Intent to Visual Experience:
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-Complete Flow: AMUM → MCP-B → SMART → B → ART → TWYH → (back to AMUM)
+Complete Flow: AMUM → MCP-B → SmartACE → Output → (back to AMUM)
 
 ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
 │  SMART   │     │    B     │     │   ART    │     │  Output  │
@@ -229,7 +230,7 @@ Bit 7: Priority (1=high)
 Bit 8-15: Reserved/Custom
 ```
 
-### Integration with B-SMART-ART
+### Integration with SmartACE
 
 ```
 MCP-B fits into the architecture:
@@ -238,11 +239,9 @@ AMUM (Human↔Machine)
     ↓
 MCP-B (Master Client Bridge) ← Protocol Layer
     ↓
-SMART (DuckDB + Extensions)
+SmartACE (Agentic Context Engineering)
     ↓
-B (Blender Bridge)
-    ↓
-ART (Visual Output)
+Output (Visual/Data)
 
 MCP-B handles:
 • Agent-to-Agent communication
@@ -626,7 +625,7 @@ ATTACH 'ducklake:workflows.ducklake' AS wf (DATA_PATH 'workflow_data/');
 USE wf;
 ```
 
-### B-SMART-ART Quick Start
+### SmartACE Quick Start
 
 ```python
 # Python: Complete pipeline
@@ -1047,7 +1046,7 @@ ORDER BY l.created_at DESC;
 - `scripts/sql/setup.sql` - Initial setup + extension seeding
 - `scripts/sql/ace_loop.sql` - ACE pattern implementation
 - `scripts/sql/embeddings.sql` - **ML Pipeline: model2vec → HNSW → Semantic Search**
-- `scripts/sql/blender_pipeline.sql` - **B-SMART-ART: DuckDB ↔ Blender ↔ UE5 Bridge**
+- `scripts/sql/blender_pipeline.sql` - **SmartACE: DuckDB ↔ Blender ↔ UE5 Bridge**
 - `scripts/sql/discover_extensions.sql` - Extension discovery workflow
 - `scripts/sql/time_travel.sql` - DuckLake time travel patterns
 - `scripts/sql/realtime_workflow.sql` - WebSocket/Redis integration
