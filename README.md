@@ -12,16 +12,18 @@ A complete agent communication framework combining:
 
 ```bash
 # Via pip
-pip install mcb
+pip install mcp-b
 
 # Via uv
-uvx mcb demo
+uvx mcp-b demo
+# or after install:
+mcb demo
 
 # With SurrealDB support
-pip install mcb[surrealdb]
+pip install mcp-b[surrealdb]
 
 # Full installation
-pip install mcb[full]
+pip install mcp-b[full]
 ```
 
 ## CLI Usage
@@ -245,4 +247,4 @@ MIT License - Björn Bethge
 ## Links
 
 - [GitHub](https://github.com/bjoernbethge/mcb)
-- [PyPI](https://pypi.org/project/mcb/)
+- [PyPI](https://pypi.org/project/mcp-b/)

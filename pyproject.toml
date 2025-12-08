@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mcb"
+name = "mcp-b"
 version = "0.1.0"
 description = "MCB (Master Client Bridge) - Connects everything, brings data flow together. Protocol with AMUM-QCI-ETHIC Module"
 readme = "README.md"
