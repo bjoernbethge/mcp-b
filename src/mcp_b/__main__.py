@@ -3,18 +3,17 @@
 MCP-B (Master Client Bridge) CLI - Connects everything, brings data flow together.
 
 Usage:
+    uvx mcp-b start "task"           # Start a workflow
+    uvx mcp-b next                   # Show next step
+    uvx mcp-b select 2               # Select option
+    uvx mcp-b status                 # Show workflow status
     uvx mcp-b demo                   # Run demo
-    uvx mcp-b encode <msg>           # Encode message
-    uvx mcp-b decode <msg>           # Decode message
-    uvx mcp-b ethic check            # Check ethical principles
-    uvx mcp-b ethic frameworks       # List moral frameworks
-    uvx mcp-b qci status             # QCI network status
-    uvx mcp-b bridge status          # Database bridge status
 """
 
 import argparse
 import asyncio
 import json
+import os
 
 from . import __version__
 from .protocol import MCBAgent, MCBProtocol, encode_mcb, decode_mcb
@@ -26,38 +25,49 @@ from .ethic import (
     get_ethics_prompt, FRAMEWORK_PROMPTS, MANIPULATION_PROMPTS,
 )
 from .bridge import DatabaseBridge, BridgeConfig, create_bridge
+from .workflow import (
+    Workflow, WorkflowStep, WorkflowTemplate, WorkflowEngine,
+    get_engine, start_workflow, current_workflow, workflow_next
+)
 
 
 def cmd_demo(args):
     """Run the full demo"""
     print(f"\n{'='*60}")
-    print(f"MCP-B (Master Client Bridge) v{__version__} - DEMO")
+    print(f"MCP-B (Master Client Bridge) v{__version__}")
     print(f"{'='*60}")
 
     # Protocol Demo
-    print("\n[MCP-B PROTOCOL]")
-    claude = MCBAgent(agent_id="7C1", name="Claude", capabilities=["chat", "code"])
-    hacka = MCBAgent(agent_id="5510", name="HACKA-DEV-BJOERN", capabilities=["orchestrate"])
-    protocol = MCBProtocol(hacka)
-    init_msg = protocol.init_connection(claude)
-    print(f"  INIT: {init_msg.encode()}")
-
-    # QCI Demo
-    print("\n[QCI COHERENCE]")
-    qci = QCI()
-    qci.register_agent("7C1", initial_coherence=0.8)
-    qci.register_agent("5510", initial_coherence=1.0)
-    network_coh = qci.calculate_network_coherence()
-    print(f"  Network Coherence: {network_coh:.2f}")
+    print("\n[PROTOCOL] Agent Communication")
+    user = MCBAgent(agent_id="USER", name="User", capabilities=["request"])
+    assistant = MCBAgent(agent_id="AI", name="Assistant", capabilities=["chat", "code", "analyze"])
+    protocol = MCBProtocol(user)
+    init_msg = protocol.init_connection(assistant)
+    print(f"  Message: {init_msg.encode()}")
 
     # ETHIC Demo
-    print("\n[ETHIC PRINCIPLES]")
+    print("\n[ETHIC] AI Ethics Principles")
     ethic = ETHIC()
-    print(f"  Total Principles: {len(ethic.principles)}")
-    print(f"  Safety: {len(ethic.get_by_category(EthicCategory.SAFETY))}")
+    print(f"  {len(ethic.principles)} principles loaded")
+    for cat in [EthicCategory.SAFETY, EthicCategory.PRIVACY, EthicCategory.TRANSPARENCY]:
+        count = len(ethic.get_by_category(cat))
+        print(f"  - {cat.value}: {count}")
+
+    # Ethics-model frameworks
+    print("\n[ETHICS-MODEL] Moral Frameworks")
+    for fw in list(MoralFramework)[:3]:
+        print(f"  - {fw.value}")
+    print(f"  ... and {len(MoralFramework) - 3} more")
+
+    # Bridge Demo
+    print("\n[BRIDGE] Database Status")
+    bridge = create_bridge()
+    bridge.connect_duckdb()
+    print(f"  DuckDB: Ready (in-memory)")
+    print(f"  SurrealDB: Available" if bridge.status()['surrealdb']['available'] else "  SurrealDB: Not installed")
 
     print(f"\n{'='*60}")
-    print("DEMO COMPLETE")
+    print("Try: mcp-b ethic list | mcp-b bridge status")
     print(f"{'='*60}\n")
 
 
@@ -126,15 +136,15 @@ def cmd_qci(args):
     qci = QCI()
 
     if args.qci_cmd == "status":
-        print(f"QCI Network Status")
-        print(f"  Registered Agents: {len(qci.states)}")
-        if qci.states:
-            coh = qci.calculate_network_coherence()
-            print(f"  Network Coherence: {coh:.2f}")
+        print("QCI (Quantum Coherence Interface)")
+        print("  Tracks synchronization between agents")
+        print(f"  Registered: {len(qci.states)} agents")
 
-    elif args.qci_cmd == "register":
-        state = qci.register_agent(args.agent_id, initial_coherence=float(args.coherence or 1.0))
-        print(f"Registered: {args.agent_id} (coherence={state.coherence_level})")
+    elif args.qci_cmd == "info":
+        print("QCI - What is it?")
+        print("  Measures how well agents are synchronized.")
+        print("  Coherence 1.0 = perfect sync, 0.0 = no sync")
+        print("  Used for: agent coordination, quality tracking")
 
 
 def cmd_amum(args):
@@ -194,6 +204,104 @@ def cmd_version(args):
     print(f"mcp-b {__version__}")
 
 
+# ============================================
+# WORKFLOW COMMANDS
+# ============================================
+
+def cmd_start(args):
+    """Start a new workflow"""
+    task = " ".join(args.task) if args.task else "New Task"
+    template = args.template or "default"
+
+    engine = get_engine()
+
+    # Load built-in templates
+    templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+    if os.path.exists(templates_dir):
+        for f in os.listdir(templates_dir):
+            if f.endswith(".yaml"):
+                try:
+                    engine.load_template(os.path.join(templates_dir, f))
+                except Exception:
+                    pass
+
+    workflow = engine.start(task, template)
+
+    # Generate placeholder options for demo
+    step = workflow.get_current_step()
+    if step and not step.options:
+        step.options = [f"Option {i+1} for: {step.name}" for i in range(step.num_options)]
+
+    print(workflow.display_current())
+    print(f"\nWorkflow ID: {workflow.workflow_id}")
+    print("Use: mcp-b select <number> to choose")
+
+
+def cmd_next(args):
+    """Show current step"""
+    workflow = current_workflow()
+    if not workflow:
+        print("No active workflow. Start one with: mcp-b start \"your task\"")
+        return
+
+    print(workflow.display_current())
+
+
+def cmd_select(args):
+    """Select an option"""
+    workflow = current_workflow()
+    if not workflow:
+        print("No active workflow. Start one with: mcp-b start \"your task\"")
+        return
+
+    selection = args.number
+    if workflow.select_and_advance(selection):
+        # Generate options for next step if needed
+        step = workflow.get_current_step()
+        if step and not step.options:
+            step.options = [f"Option {i+1} for: {step.name}" for i in range(step.num_options)]
+
+        print(workflow.display_current())
+    else:
+        print(f"Invalid selection: {selection}")
+
+
+def cmd_status(args):
+    """Show workflow status"""
+    workflow = current_workflow()
+    if not workflow:
+        print("No active workflow. Start one with: mcp-b start \"your task\"")
+        return
+
+    print(workflow.display_status())
+
+
+def cmd_workflows(args):
+    """List all workflows"""
+    engine = get_engine()
+
+    if args.wf_cmd == "list":
+        active = engine.list_active()
+        completed = engine.list_completed()
+
+        if active:
+            print("Active Workflows:")
+            for w in active:
+                print(f"  [{w.workflow_id}] {w.name} ({w.progress})")
+        else:
+            print("No active workflows")
+
+        if completed:
+            print("\nCompleted Workflows:")
+            for w in completed:
+                print(f"  [{w.workflow_id}] {w.name}")
+
+    elif args.wf_cmd == "templates":
+        print("Available Templates:")
+        for name, template in engine.templates.items():
+            print(f"  {name}: {template.description or template.name}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="mcp-b",
@@ -201,20 +309,49 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  mcp-b demo                    Run the demo
-  mcp-b encode "Hello World"    Encode a message
-  mcp-b decode "<mcb_string>"   Decode a message
-  mcp-b ethic list              List ethical principles
-  mcp-b ethic frameworks        List moral frameworks (ethics-model)
-  mcp-b ethic manipulation      List manipulation techniques
-  mcp-b qci status              Show QCI network status
-  mcp-b bridge status           Show database bridge status
-  mcp-b bridge sync             Sync DuckDB <-> SurrealDB
+  mcp-b start "Build an API"    Start a new workflow
+  mcp-b next                    Show current step
+  mcp-b select 2                Select option 2
+  mcp-b status                  Show workflow progress
+  mcp-b demo                    Run demo
+  mcp-b workflows templates     List available templates
         """
     )
     parser.add_argument("-v", "--version", action="store_true", help="Show version")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # ============================================
+    # WORKFLOW COMMANDS (Primary)
+    # ============================================
+
+    # start
+    start_parser = subparsers.add_parser("start", help="Start a new workflow")
+    start_parser.add_argument("task", nargs="*", help="Task description")
+    start_parser.add_argument("--template", "-t", help="Workflow template (default, code_review, etc.)")
+    start_parser.set_defaults(func=cmd_start)
+
+    # next
+    next_parser = subparsers.add_parser("next", help="Show current step")
+    next_parser.set_defaults(func=cmd_next)
+
+    # select
+    select_parser = subparsers.add_parser("select", help="Select an option")
+    select_parser.add_argument("number", type=int, help="Option number to select")
+    select_parser.set_defaults(func=cmd_select)
+
+    # status
+    status_parser = subparsers.add_parser("status", help="Show workflow status")
+    status_parser.set_defaults(func=cmd_status)
+
+    # workflows
+    wf_parser = subparsers.add_parser("workflows", help="Manage workflows")
+    wf_parser.add_argument("wf_cmd", choices=["list", "templates"], help="Subcommand")
+    wf_parser.set_defaults(func=cmd_workflows)
+
+    # ============================================
+    # OTHER COMMANDS
+    # ============================================
 
     # demo
     demo_parser = subparsers.add_parser("demo", help="Run the full demo")

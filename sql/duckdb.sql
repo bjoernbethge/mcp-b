@@ -594,3 +594,133 @@ LEFT JOIN framework_analysis f ON e.id = f.ethics_id
 LEFT JOIN manipulation_detection m ON e.id = m.ethics_id
 GROUP BY e.id, e.ethics_score, e.manipulation_score, e.framing_type, e.timestamp
 ORDER BY e.timestamp DESC;
+
+-- ============================================
+-- PYTHON EXECUTION MACROS (from agent-farm)
+-- ============================================
+
+-- Shell command execution
+CREATE OR REPLACE MACRO shell(cmd) AS (
+    SELECT content FROM read_text(
+        'pipe://' || cmd
+    )
+);
+
+-- Python execution via uv
+CREATE OR REPLACE MACRO py(code) AS (
+    shell('uv run python -c "' || replace(replace(code, '\', '\\'), '"', '\"') || '"')
+);
+
+-- Python with specific packages (e.g., py_with('pandas,numpy', 'import pandas; print(pandas.__version__)'))
+CREATE OR REPLACE MACRO py_with(packages, code) AS (
+    shell('uv run --with ' || packages || ' python -c "' || replace(replace(code, '\', '\\'), '"', '\"') || '"')
+);
+
+-- Run Python script file
+CREATE OR REPLACE MACRO py_script(script_path) AS (
+    shell('uv run python ' || script_path)
+);
+
+-- Run Python script with packages
+CREATE OR REPLACE MACRO py_script_with(packages, script_path) AS (
+    shell('uv run --with ' || packages || ' python ' || script_path)
+);
+
+-- ============================================
+-- TEMPLATE / OUTPUT MACROS
+-- ============================================
+
+-- Jinja template rendering
+CREATE OR REPLACE MACRO jinja_render(template_str, data_json) AS (
+    py_with('jinja2',
+        'import jinja2,json,sys;' ||
+        't=jinja2.Template(sys.argv[1]);' ||
+        'd=json.loads(sys.argv[2]);' ||
+        'print(t.render(**d))' ||
+        '" "' || replace(template_str, '"', '\"') ||
+        '" "' || replace(data_json, '"', '\"')
+    )
+);
+
+-- Simple string template (Python format style)
+CREATE OR REPLACE MACRO template(format_str, data_json) AS (
+    py('import json;d=json.loads(''' || data_json || ''');print(''' || format_str || '''.format(**d))')
+);
+
+-- ============================================
+-- WORKFLOW TABLES
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS workflows (
+    id INTEGER PRIMARY KEY,
+    workflow_id VARCHAR NOT NULL UNIQUE,
+    name VARCHAR NOT NULL,
+    template_name VARCHAR,
+    current_step INTEGER DEFAULT 0,
+    status VARCHAR CHECK (status IN ('active', 'completed', 'cancelled')) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS workflow_steps (
+    id INTEGER PRIMARY KEY,
+    workflow_id VARCHAR NOT NULL,
+    step_index INTEGER NOT NULL,
+    name VARCHAR NOT NULL,
+    prompt TEXT,
+    options JSON,
+    selected INTEGER,
+    output TEXT,
+    status VARCHAR CHECK (status IN ('pending', 'active', 'completed', 'skipped')) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS workflow_history (
+    id INTEGER PRIMARY KEY,
+    workflow_id VARCHAR NOT NULL,
+    step_index INTEGER,
+    action VARCHAR NOT NULL,
+    data JSON,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
+-- WORKFLOW MACROS
+-- ============================================
+
+-- Get current workflow status
+CREATE OR REPLACE MACRO workflow_status(wf_id) AS (
+    SELECT
+        w.workflow_id,
+        w.name,
+        w.status,
+        w.current_step,
+        (SELECT COUNT(*) FROM workflow_steps WHERE workflow_id = w.workflow_id) as total_steps,
+        (SELECT name FROM workflow_steps WHERE workflow_id = w.workflow_id AND step_index = w.current_step) as current_step_name
+    FROM workflows w
+    WHERE w.workflow_id = wf_id
+);
+
+-- Get step options for current step
+CREATE OR REPLACE MACRO workflow_options(wf_id) AS (
+    SELECT
+        ws.step_index,
+        ws.name,
+        ws.prompt,
+        ws.options
+    FROM workflows w
+    JOIN workflow_steps ws ON w.workflow_id = ws.workflow_id AND ws.step_index = w.current_step
+    WHERE w.workflow_id = wf_id
+);
+
+-- Format workflow output using LLM
+CREATE OR REPLACE MACRO workflow_generate_options(wf_id, num_options) AS (
+    SELECT ollama_chat('llama3.2',
+        'Generate ' || num_options || ' options for: ' ||
+        (SELECT prompt FROM workflow_steps ws
+         JOIN workflows w ON w.workflow_id = ws.workflow_id
+         WHERE w.workflow_id = wf_id AND ws.step_index = w.current_step) ||
+        '\n\nRespond with a JSON array of ' || num_options || ' short option strings.'
+    )
+);

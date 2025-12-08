@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mcp-b"
-version = "0.2.0"
+version = "0.3.0"
 description = "MCP-B (Master Client Bridge) - Connects everything, brings data flow together. Protocol with AMUM-QCI-ETHIC Module"
 readme = "README.md"
 license = "MIT"
@@ -29,6 +29,7 @@ requires-python = ">=3.11"
 dependencies = [
     "duckdb>=1.0.0",
     "surrealdb>=0.3.0",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
