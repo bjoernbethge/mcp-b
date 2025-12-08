@@ -1,20 +1,20 @@
 """
-MCB (Master Client Bridge) - Connects everything, brings data flow together.
+MCP-B (Master Client Bridge) - Connects everything, brings data flow together.
 
 A complete agent communication protocol with:
-- MCB Protocol: 4-layer encoding for agent-to-agent messaging
+- MCP-B Protocol: 4-layer encoding for agent-to-agent messaging
 - AMUM: Progressive 3→6→9 alignment workflow
 - QCI: Quantum coherence state tracking
 - ETHIC: AI ethics principles enforcement
 
 Quick Start:
-    from mcb import MCBAgent, MCBProtocol, encode_mcb, decode_mcb
-    from mcb import AMUM, quick_alignment
-    from mcb import ETHIC, check_ethical
-    from mcb import QCI, QCIState
+    from mcp_b import MCBAgent, MCBProtocol, encode_mcb, decode_mcb
+    from mcp_b import AMUM, quick_alignment
+    from mcp_b import ETHIC, check_ethical
+    from mcp_b import QCI, QCIState
 """
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __author__ = "Björn Bethge"
 
 # Protocol exports

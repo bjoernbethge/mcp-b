@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mcp-b"
-version = "0.1.1"
-description = "MCB (Master Client Bridge) - Connects everything, brings data flow together. Protocol with AMUM-QCI-ETHIC Module"
+version = "0.1.2"
+description = "MCP-B (Master Client Bridge) - Connects everything, brings data flow together. Protocol with AMUM-QCI-ETHIC Module"
 readme = "README.md"
 license = "MIT"
 authors = [
@@ -35,14 +35,14 @@ full = ["surrealdb>=0.3.0", "numpy>=1.24.0"]
 dev = ["pytest>=7.0", "black", "ruff"]
 
 [project.scripts]
-mcp-b = "mcb.__main__:main"
+mcp-b = "mcp_b.__main__:main"
 
 [project.urls]
 Homepage = "https://github.com/bjoernbethge/mcp-b"
 Documentation = "https://github.com/bjoernbethge/mcp-b#readme"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mcb"]
+packages = ["src/mcp_b"]
 
 [tool.ruff]
 line-length = 100

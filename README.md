@@ -1,9 +1,9 @@
-# MCB - Master Client Bridge
+# MCP-B - Master Client Bridge
 
 **Connects everything, brings data flow together.**
 
 A complete agent communication framework combining:
-- **MCB Protocol**: 4-layer encoding for agent-to-agent messaging
+- **MCP-B Protocol**: 4-layer encoding for agent-to-agent messaging
 - **AMUM**: Progressive 3→6→9 human-AI alignment workflow
 - **QCI**: Quantum coherence state tracking
 - **ETHIC**: AI ethics principles enforcement
@@ -37,10 +37,10 @@ mcp-b version                           # Show version
 
 ## Quick Start
 
-### MCB Protocol - Agent Communication
+### MCP-B Protocol - Agent Communication
 
 ```python
-from mcb import MCBAgent, MCBProtocol, encode_mcb, decode_mcb
+from mcp_b import MCBAgent, MCBProtocol, encode_mcb, decode_mcb
 
 # Create agents
 claude = MCBAgent(agent_id="7C1", name="Claude")
@@ -63,7 +63,7 @@ decoded = decode_mcb("5510 7C1 1011101010111111 • {\"ping\": true} • Q")
 ### AMUM - Progressive Alignment (3→6→9)
 
 ```python
-from mcb import AMUM, quick_alignment
+from mcp_b import AMUM, quick_alignment
 
 # Quick one-liner alignment
 result = quick_alignment(
@@ -82,7 +82,7 @@ print(result["final_intent"])  # "ElevenLabs"
 ### QCI - Coherence States
 
 ```python
-from mcb import QCI, BreathingCycle
+from mcp_b import QCI, BreathingCycle
 
 qci = QCI()
 
@@ -101,7 +101,7 @@ print(qci.calculate_network_coherence())
 ### ETHIC - Principles Enforcement
 
 ```python
-from mcb import ETHIC, check_ethical, EthicCategory
+from mcp_b import ETHIC, check_ethical, EthicCategory
 
 ethic = ETHIC()
 
@@ -120,11 +120,11 @@ for p in ethic.get_by_category(EthicCategory.SAFETY):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    MCB - MASTER CLIENT BRIDGE                               │
+│                    MCP-B - MASTER CLIENT BRIDGE                             │
 │  ═══════════════════════════════════════════════════════════════════════   │
 │                                                                             │
 │  ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐                  │
-│  │  AMUM   │───▶│   MCB   │───▶│   QCI   │───▶│  ETHIC  │                  │
+│  │  AMUM   │───▶│  MCP-B  │───▶│   QCI   │───▶│  ETHIC  │                  │
 │  │ 3→6→9   │    │ INQC    │    │Coherence│    │Principles│                  │
 │  └─────────┘    └─────────┘    └─────────┘    └─────────┘                  │
 │       │              │              │              │                        │
@@ -139,7 +139,7 @@ for p in ethic.get_by_category(EthicCategory.SAFETY):
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## MCB Protocol Layers
+## MCP-B Protocol Layers
 
 | Layer | Purpose | Example |
 |-------|---------|---------|
@@ -211,11 +211,11 @@ FROM mcb_agents;
 ## File Structure
 
 ```
-mcb/
-├── src/mcb/
+mcp-b/
+├── src/mcp_b/
 │   ├── __init__.py      # Package exports
 │   ├── __main__.py      # CLI entry point
-│   ├── protocol.py      # MCB Protocol (INQC)
+│   ├── protocol.py      # MCP-B Protocol (INQC)
 │   ├── amum.py          # AMUM Alignment
 │   ├── qci.py           # QCI Coherence
 │   └── ethic.py         # ETHIC Principles
@@ -229,9 +229,9 @@ mcb/
 └── README.md
 ```
 
-## MCB vs MCP
+## MCP-B vs MCP
 
-| | MCB | MCP |
+| | MCP-B | MCP |
 |---|-----|-----|
 | **Full Name** | Master Client Bridge | Model Context Protocol |
 | **Purpose** | Internal agent-to-agent | Bridge to community |

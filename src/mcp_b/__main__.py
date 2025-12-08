@@ -24,11 +24,11 @@ from .ethic import ETHIC, check_ethical, EthicCategory
 def cmd_demo(args):
     """Run the full demo"""
     print(f"\n{'='*60}")
-    print(f"MCB (Master Client Bridge) v{__version__} - DEMO")
+    print(f"MCP-B (Master Client Bridge) v{__version__} - DEMO")
     print(f"{'='*60}")
 
     # Protocol Demo
-    print("\n[MCB PROTOCOL]")
+    print("\n[MCP-B PROTOCOL]")
     claude = MCBAgent(agent_id="7C1", name="Claude", capabilities=["chat", "code"])
     hacka = MCBAgent(agent_id="5510", name="HACKA-DEV-BJOERN", capabilities=["orchestrate"])
     protocol = MCBProtocol(hacka)
