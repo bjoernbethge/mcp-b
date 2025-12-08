@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mcp-b"
-version = "0.1.2"
+version = "0.1.3"
 description = "MCP-B (Master Client Bridge) - Connects everything, brings data flow together. Protocol with AMUM-QCI-ETHIC Module"
 readme = "README.md"
 license = "MIT"

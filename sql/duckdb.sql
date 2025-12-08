@@ -1,7 +1,13 @@
 -- ============================================
--- MCB-DATABRIDGE DUCKDB SCHEMA
--- Analytics layer for MCB + AMUM + QCI + ETHIC
+-- MCP-B (Master Client Bridge) DUCKDB SCHEMA
+-- Analytics layer for MCP-B + AMUM + QCI + ETHIC + SmartACE
 -- ============================================
+
+-- Required extensions:
+-- INSTALL http_client FROM community;
+-- INSTALL vss;
+-- LOAD http_client;
+-- LOAD vss;
 
 -- ============================================
 -- MCB AGENTS TABLE
@@ -217,6 +223,177 @@ INSERT INTO ethic_principles (principle_id, name, category, description, source,
     ('user_override', 'User Override', 'autonomy', 'User can always override AI decisions', 'marcel_facebook', 9),
     ('explainability', 'Explainability', 'accountability', 'Decisions should be traceable and explainable', 'anthropic', 8)
 ON CONFLICT (principle_id) DO NOTHING;
+
+-- ============================================
+-- OLLAMA / LLM MACROS (SmartACE)
+-- ============================================
+
+-- Base Ollama API endpoint
+CREATE OR REPLACE MACRO ollama_base() AS 'http://localhost:11434';
+
+-- Generic Ollama chat completion
+CREATE OR REPLACE MACRO ollama_chat(model_name, prompt) AS (
+    SELECT json_extract_string(
+        http_post(
+            ollama_base() || '/api/generate',
+            headers := MAP {'Content-Type': 'application/json'},
+            body := json_object(
+                'model', model_name,
+                'prompt', prompt,
+                'stream', false
+            )
+        ).body,
+        '$.response'
+    )
+);
+
+-- Ollama chat with messages format (for multi-turn)
+CREATE OR REPLACE MACRO ollama_chat_messages(model_name, messages_json) AS (
+    SELECT http_post(
+        ollama_base() || '/api/chat',
+        headers := MAP {'Content-Type': 'application/json'},
+        body := json_object(
+            'model', model_name,
+            'messages', json(messages_json),
+            'stream', false
+        )
+    ).body
+);
+
+-- Ollama chat WITH tools (function/tool calling)
+CREATE OR REPLACE MACRO ollama_chat_with_tools(model_name, messages_json, tools_json) AS (
+    SELECT http_post(
+        ollama_base() || '/api/chat',
+        headers := MAP {'Content-Type': 'application/json'},
+        body := json_object(
+            'model', model_name,
+            'messages', json(messages_json),
+            'tools', json(tools_json),
+            'stream', false
+        )
+    ).body
+);
+
+-- Extract tool calls from Ollama response
+CREATE OR REPLACE MACRO extract_tool_calls(response_body) AS (
+    SELECT json_extract(response_body, '$.message.tool_calls')
+);
+
+-- Extract text response from Ollama response
+CREATE OR REPLACE MACRO extract_response(response_body) AS (
+    SELECT json_extract_string(response_body, '$.message.content')
+);
+
+-- Ollama embeddings
+CREATE OR REPLACE MACRO ollama_embed(model_name, text_input) AS (
+    SELECT json_extract(
+        http_post(
+            ollama_base() || '/api/embeddings',
+            headers := MAP {'Content-Type': 'application/json'},
+            body := json_object(
+                'model', model_name,
+                'prompt', text_input
+            )
+        ).body,
+        '$.embedding'
+    )::FLOAT[]
+);
+
+-- ============================================
+-- EMBEDDING / VECTOR MACROS
+-- ============================================
+
+-- Text to embedding (default model: nomic-embed-text)
+CREATE OR REPLACE MACRO embed(text_input) AS (
+    ollama_embed('nomic-embed-text', text_input)
+);
+
+-- Cosine similarity between two vectors
+CREATE OR REPLACE MACRO cosine_sim(vec1, vec2) AS (
+    list_cosine_similarity(vec1, vec2)
+);
+
+-- Semantic similarity score between two texts
+CREATE OR REPLACE MACRO semantic_score(query_text, doc_text) AS (
+    cosine_sim(embed(query_text), embed(doc_text))
+);
+
+-- ============================================
+-- AGENTIC / SmartACE MACROS
+-- ============================================
+
+-- Agent call: Send prompt with system message and tools
+CREATE OR REPLACE MACRO agent_call(model_name, system_prompt, user_prompt, tools_json) AS (
+    SELECT ollama_chat_with_tools(
+        model_name,
+        json_array(
+            json_object('role', 'system', 'content', system_prompt),
+            json_object('role', 'user', 'content', user_prompt)
+        ),
+        tools_json
+    )
+);
+
+-- Check if response contains tool calls
+CREATE OR REPLACE MACRO has_tool_calls(response_body) AS (
+    SELECT json_extract(response_body, '$.message.tool_calls') IS NOT NULL
+        AND json_array_length(json_extract(response_body, '$.message.tool_calls')) > 0
+);
+
+-- Convert MCP tool schema to Ollama tool format
+CREATE OR REPLACE MACRO mcp_to_ollama_tool(tool_name, description, input_schema_json) AS (
+    SELECT json_object(
+        'type', 'function',
+        'function', json_object(
+            'name', tool_name,
+            'description', description,
+            'parameters', json(input_schema_json)
+        )
+    )
+);
+
+-- Simple chat helper (default model)
+CREATE OR REPLACE MACRO chat(prompt) AS (
+    ollama_chat('llama3.2', prompt)
+);
+
+-- RAG query: Answer question based on context
+CREATE OR REPLACE MACRO rag_query(question, context) AS (
+    ollama_chat('llama3.2',
+        'Answer based on the following context:\n\n' || context ||
+        '\n\nQuestion: ' || question
+    )
+);
+
+-- ============================================
+-- QCI + EMBEDDING INTEGRATION
+-- ============================================
+
+-- Calculate coherence between two agents based on their descriptions
+CREATE OR REPLACE MACRO agent_coherence(agent1_desc, agent2_desc) AS (
+    semantic_score(agent1_desc, agent2_desc)
+);
+
+-- Find most coherent agent for a task
+CREATE OR REPLACE MACRO find_coherent_agent(task_description) AS (
+    SELECT agent_id, name, semantic_score(task_description, capabilities::VARCHAR) as coherence
+    FROM mcb_agents
+    ORDER BY coherence DESC
+    LIMIT 1
+);
+
+-- ============================================
+-- INQC + LLM INTEGRATION
+-- ============================================
+
+-- Generate INQC response using LLM
+CREATE OR REPLACE MACRO inqc_llm_query(source, dest, query_payload) AS (
+    mcb_encode(
+        source, dest, '1011101010111111',
+        json_object('response', ollama_chat('llama3.2', query_payload)),
+        'Q'
+    )
+);
 
 -- ============================================
 -- VIEWS
