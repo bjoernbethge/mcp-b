@@ -16,8 +16,6 @@ pip install mcp-b
 
 # Via uv
 uvx mcp-b demo
-# or after install:
-mcb demo
 
 # With SurrealDB support
 pip install mcp-b[surrealdb]
@@ -29,12 +27,12 @@ pip install mcp-b[full]
 ## CLI Usage
 
 ```bash
-mcb demo                              # Run demo
-mcb encode "Hello" -s 5510 -d 7C1     # Encode message
-mcb decode "5510 7C1 ..."             # Decode message
-mcb ethic list                        # List ethical principles
-mcb qci status                        # QCI network status
-mcb version                           # Show version
+mcp-b demo                              # Run demo
+mcp-b encode "Hello" -s 5510 -d 7C1     # Encode message
+mcp-b decode "5510 7C1 ..."             # Decode message
+mcp-b ethic list                        # List ethical principles
+mcp-b qci status                        # QCI network status
+mcp-b version                           # Show version
 ```
 
 ## Quick Start
@@ -246,5 +244,5 @@ MIT License - Björn Bethge
 
 ## Links
 
-- [GitHub](https://github.com/bjoernbethge/mcb)
+- [GitHub](https://github.com/bjoernbethge/mcp-b)
 - [PyPI](https://pypi.org/project/mcp-b/)

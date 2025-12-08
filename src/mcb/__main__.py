@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-MCB (Master Client Bridge) CLI - Connects everything, brings data flow together.
+MCP-B (Master Client Bridge) CLI - Connects everything, brings data flow together.
 
 Usage:
-    uvx mcb demo                     # Run demo
-    uvx mcb encode <msg>             # Encode message
-    uvx mcb decode <msg>             # Decode message
-    uvx mcb ethic check              # Check ethical principles
-    uvx mcb qci status               # QCI network status
+    uvx mcp-b demo                   # Run demo
+    uvx mcp-b encode <msg>           # Encode message
+    uvx mcp-b decode <msg>           # Decode message
+    uvx mcp-b ethic check            # Check ethical principles
+    uvx mcp-b qci status             # QCI network status
 """
 
 import argparse
@@ -123,21 +123,21 @@ def cmd_amum(args):
 
 def cmd_version(args):
     """Show version"""
-    print(f"mcb {__version__}")
+    print(f"mcp-b {__version__}")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="mcb",
-        description="MCB (Master Client Bridge) - Connects everything, brings data flow together",
+        prog="mcp-b",
+        description="MCP-B (Master Client Bridge) - Connects everything, brings data flow together",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  mcb demo                    Run the demo
-  mcb encode "Hello World"    Encode a message
-  mcb decode "<mcb_string>"   Decode a message
-  mcb ethic list              List ethical principles
-  mcb qci status              Show QCI network status
+  mcp-b demo                    Run the demo
+  mcp-b encode "Hello World"    Encode a message
+  mcp-b decode "<mcb_string>"   Decode a message
+  mcp-b ethic list              List ethical principles
+  mcp-b qci status              Show QCI network status
         """
     )
     parser.add_argument("-v", "--version", action="store_true", help="Show version")
