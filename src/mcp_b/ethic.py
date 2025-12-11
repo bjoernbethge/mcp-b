@@ -453,10 +453,29 @@ MANIPULATION_PROMPTS = {
 }
 
 
+# Cache the static prompt template parts for better performance
+_FRAMEWORKS_TEXT = None
+_MANIPULATION_TEXT = None
+
+def _get_frameworks_text():
+    """Cache frameworks text for reuse."""
+    global _FRAMEWORKS_TEXT
+    if _FRAMEWORKS_TEXT is None:
+        _FRAMEWORKS_TEXT = "\n".join(f"- {desc}" for desc in FRAMEWORK_PROMPTS.values())
+    return _FRAMEWORKS_TEXT
+
+def _get_manipulation_text():
+    """Cache manipulation text for reuse."""
+    global _MANIPULATION_TEXT
+    if _MANIPULATION_TEXT is None:
+        _MANIPULATION_TEXT = "\n".join(f"- {desc}" for desc in MANIPULATION_PROMPTS.values())
+    return _MANIPULATION_TEXT
+
 def get_ethics_prompt(text: str) -> str:
     """Generate a prompt for LLM-based ethics analysis"""
-    frameworks = "\n".join(f"- {desc}" for desc in FRAMEWORK_PROMPTS.values())
-    manipulation = "\n".join(f"- {desc}" for desc in MANIPULATION_PROMPTS.values())
+    # Use cached framework and manipulation descriptions
+    frameworks = _get_frameworks_text()
+    manipulation = _get_manipulation_text()
 
     return f"""Analyze the following text for ethical considerations.
 
