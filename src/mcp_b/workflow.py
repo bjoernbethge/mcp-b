@@ -57,11 +57,11 @@ class WorkflowStep:
         """Format step for display"""
         lines = [f"Step {self.step_index + 1}: {self.name}", ""]
         if self.prompt:
-            lines.append(self.prompt)
-            lines.append("")
-        for i, opt in enumerate(self.options):
-            marker = ">" if i == self.selected else " "
-            lines.append(f"  {marker} [{i + 1}] {opt}")
+            lines.extend([self.prompt, ""])
+        lines.extend(
+            f"  {'>' if i == self.selected else ' '} [{i + 1}] {opt}"
+            for i, opt in enumerate(self.options)
+        )
         return "\n".join(lines)
 
 
@@ -166,13 +166,16 @@ class Workflow:
         step.output = step.options[index]
         step.status = StepStatus.COMPLETED
 
+        # Cache timestamp to avoid multiple datetime.now() calls
+        timestamp = datetime.now().isoformat()
+        
         # Log to history
         self.history.append({
             "action": "select",
             "step": self.current_step,
             "selection": selection,
             "option": step.options[index],
-            "timestamp": datetime.now().isoformat()
+            "timestamp": timestamp
         })
 
         return True
@@ -186,12 +189,13 @@ class Workflow:
         self.current_step += 1
 
         if self.current_step >= len(self.steps):
-            # Workflow complete
+            # Workflow complete - cache datetime to avoid calling it twice
+            now = datetime.now()
             self.status = WorkflowStatus.COMPLETED
-            self.completed_at = datetime.now()
+            self.completed_at = now
             self.history.append({
                 "action": "complete",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": now.isoformat()
             })
             return True
 
@@ -223,13 +227,14 @@ class Workflow:
             ""
         ]
 
-        for step in self.steps:
-            if step.status == StepStatus.COMPLETED:
-                lines.append(f"  [x] {step.name}: {step.output}")
-            elif step.status == StepStatus.ACTIVE:
-                lines.append(f"  [>] {step.name} (current)")
-            else:
-                lines.append(f"  [ ] {step.name}")
+        # Use generator for better memory efficiency with large step counts
+        step_lines = (
+            f"  [x] {step.name}: {step.output}" if step.status == StepStatus.COMPLETED
+            else f"  [>] {step.name} (current)" if step.status == StepStatus.ACTIVE
+            else f"  [ ] {step.name}"
+            for step in self.steps
+        )
+        lines.extend(step_lines)
 
         return "\n".join(lines)
 
@@ -251,12 +256,12 @@ class Workflow:
 
         lines = [
             f"Workflow Complete: {self.name}",
-            f"=" * 40,
+            "=" * 40,
             ""
         ]
 
-        for step in self.steps:
-            lines.append(f"{step.name}: {step.output}")
+        # Use generator for better memory efficiency
+        lines.extend(f"{step.name}: {step.output}" for step in self.steps)
 
         return "\n".join(lines)
 

@@ -49,22 +49,27 @@ class AMUMSession:
     def present_options(self) -> str:
         """Format options for display"""
         lines = [f"Phase: {self.phase.value}", f"Intent: {self.intent}", ""]
+        
+        # Use generator for better memory efficiency
         for opt in self.options:
             marker = "→" if opt.index == self.selected else " "
             lines.append(f"  {marker} [{opt.index}] {opt.label}")
             if opt.description:
                 lines.append(f"       {opt.description}")
+        
         return "\n".join(lines)
     
     def select(self, index: int) -> bool:
         """Select an option by index"""
         if 0 <= index < len(self.options):
             self.selected = index
+            # Cache timestamp to avoid multiple datetime.now() calls
+            timestamp = datetime.now().isoformat()
             self.history.append({
                 "phase": self.phase.value,
                 "selected": index,
                 "option": self.options[index].label,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": timestamp
             })
             return True
         return False

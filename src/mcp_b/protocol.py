@@ -19,6 +19,9 @@ from typing import Any
 import json
 import re
 
+# Compile regex pattern once for performance
+_MCB_MESSAGE_PATTERN = re.compile(r'^(\w+)\s+(\w+)\s+([01]+)\s+•\s+(.+?)\s+•\s+([INQC])$')
+
 
 class INQCCommand(Enum):
     """INQC Protocol Commands"""
@@ -86,9 +89,8 @@ class MCBMessage:
         
         Parses: {source} {dest} {binary} • {payload} • {cmd}
         """
-        # Pattern: source dest binary • payload • command
-        pattern = r'^(\w+)\s+(\w+)\s+([01]+)\s+•\s+(.+?)\s+•\s+([INQC])$'
-        match = re.match(pattern, raw.strip())
+        # Use pre-compiled regex pattern for better performance
+        match = _MCB_MESSAGE_PATTERN.match(raw.strip())
         
         if not match:
             raise ValueError(f"Invalid MCB message format: {raw}")

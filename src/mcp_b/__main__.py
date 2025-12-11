@@ -215,15 +215,19 @@ def cmd_start(args):
 
     engine = get_engine()
 
-    # Load built-in templates
-    templates_dir = os.path.join(os.path.dirname(__file__), "templates")
-    if os.path.exists(templates_dir):
-        for f in os.listdir(templates_dir):
-            if f.endswith(".yaml"):
-                try:
-                    engine.load_template(os.path.join(templates_dir, f))
-                except Exception:
-                    pass
+    # Lazy load templates - only load if custom template requested
+    if template != "default":
+        templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+        if os.path.exists(templates_dir):
+            # Only load templates once per engine lifetime
+            if not hasattr(engine, '_templates_loaded'):
+                for f in os.listdir(templates_dir):
+                    if f.endswith(".yaml"):
+                        try:
+                            engine.load_template(os.path.join(templates_dir, f))
+                        except Exception:
+                            pass
+                engine._templates_loaded = True
 
     workflow = engine.start(task, template)
 

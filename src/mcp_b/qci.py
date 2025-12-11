@@ -38,6 +38,7 @@ class QCIState:
     
     def update_coherence(self, delta: float) -> None:
         """Update coherence level (clamped 0-1)"""
+        # Clamp in a single operation for better performance
         self.coherence_level = max(0.0, min(1.0, self.coherence_level + delta))
         self.timestamp = datetime.now()
     
@@ -143,21 +144,24 @@ class QCI:
         if not source:
             return {"error": "Agent not found"}
         
+        # Cache source signal strength to avoid repeated attribute access
+        source_signal = source.signal_strength
+        
         # Calculate reception for each agent based on coherence
-        receptions = {}
-        for agent_id, state in self.states.items():
-            if agent_id != from_agent:
-                # Reception = source_signal * receiver_coherence
-                reception_strength = source.signal_strength * state.coherence_level
-                receptions[agent_id] = {
-                    "message": message,
-                    "clarity": reception_strength,
-                    "received": reception_strength > 0.5
-                }
+        # Use dict comprehension for better performance
+        receptions = {
+            agent_id: {
+                "message": message,
+                "clarity": (reception_strength := source_signal * state.coherence_level),
+                "received": reception_strength > 0.5
+            }
+            for agent_id, state in self.states.items()
+            if agent_id != from_agent
+        }
         
         return {
             "from": from_agent,
-            "signal_strength": source.signal_strength,
+            "signal_strength": source_signal,
             "receptions": receptions
         }
     

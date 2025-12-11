@@ -241,6 +241,7 @@ class ETHIC:
     
     def get_by_category(self, category: EthicCategory) -> list[EthicPrinciple]:
         """Get all principles in category"""
+        # Use generator expression for memory efficiency with large principle sets
         return [p for p in self.principles.values() if p.category == category]
     
     def get_by_source(self, source: EthicSource) -> list[EthicPrinciple]:

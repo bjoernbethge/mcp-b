@@ -235,11 +235,14 @@ class DatabaseBridge:
             ORDER BY count DESC
         """).fetchall()
 
-        # Agent activity
+        # Agent activity - optimized with single query using window functions
         agent_activity = self.duck.execute("""
-            SELECT source_id, COUNT(*) as sent,
-                   (SELECT COUNT(*) FROM mcb_messages m2 WHERE m2.dest_id = m1.source_id) as received
-            FROM mcb_messages m1
+            SELECT 
+                source_id,
+                COUNT(*) as sent,
+                SUM(CASE WHEN dest_id = source_id THEN 1 ELSE 0 END) 
+                    OVER (PARTITION BY source_id) as received
+            FROM mcb_messages
             GROUP BY source_id
             ORDER BY sent DESC
         """).fetchall()
