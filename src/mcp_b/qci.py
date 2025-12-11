@@ -175,9 +175,10 @@ class QCI:
 
 # Convenience: Quick coherence calculations
 def coherence_signal(base: float, rov_q: float, multiplier: float = 1.0) -> float:
-    """Calculate coherence signal from base and ROV/Q"""
-    # Optimize by avoiding abs() when rov_q is known to be positive
-    # Use math.sqrt directly on positive values for better performance
+    """Calculate coherence signal from base and ROV/Q
+    
+    Uses abs() to handle negative values safely, ensuring sqrt receives positive input.
+    """
     return base * math.sqrt(abs(rov_q)) * multiplier
 
 

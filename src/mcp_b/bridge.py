@@ -252,7 +252,7 @@ class DatabaseBridge:
                 FROM mcb_messages
                 GROUP BY dest_id
             ) received ON sent.source_id = received.dest_id
-            ORDER BY sent DESC
+            ORDER BY sent.sent_count DESC
         """).fetchall()
 
         return {
