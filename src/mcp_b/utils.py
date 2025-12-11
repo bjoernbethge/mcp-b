@@ -4,6 +4,7 @@ Utility functions for MCP-B.
 Includes performance optimization utilities like caching decorators.
 """
 
+from collections import OrderedDict
 from functools import wraps, lru_cache
 from typing import Callable, Any
 import time
@@ -14,17 +15,27 @@ def timed_cache(maxsize: int = 128, ttl_seconds: float = 300):
     Decorator that caches function results with a time-to-live.
     
     Args:
-        maxsize: Maximum cache size
-        ttl_seconds: Time to live for cached results in seconds
+        maxsize: Maximum cache size (must be > 0 or None for unbounded)
+        ttl_seconds: Time to live in seconds (must be > 0 or None for no expiration)
     
     Example:
         @timed_cache(maxsize=100, ttl_seconds=60)
         def expensive_operation(x):
             return x * 2
+        
+        @timed_cache(maxsize=None, ttl_seconds=None)  # Unbounded, no expiration
+        def another_operation(x):
+            return x * 3
     """
+    # Input validation - allow None for unbounded/no expiration
+    if maxsize is not None and maxsize <= 0:
+        raise ValueError(f"maxsize must be positive or None, got {maxsize}")
+    if ttl_seconds is not None and ttl_seconds <= 0:
+        raise ValueError(f"ttl_seconds must be positive or None, got {ttl_seconds}")
+    
     def decorator(func: Callable) -> Callable:
-        cache = {}
-        timestamps = {}
+        # Use OrderedDict for efficient LRU eviction (O(1) instead of O(n))
+        cache = OrderedDict()
         
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -34,25 +45,30 @@ def timed_cache(maxsize: int = 128, ttl_seconds: float = 300):
             
             # Check if cached and not expired
             if key in cache:
-                if current_time - timestamps[key] < ttl_seconds:
-                    return cache[key]
+                result, timestamp = cache[key]
+                # Check TTL if configured
+                if ttl_seconds is None or current_time - timestamp < ttl_seconds:
+                    # Move to end for LRU (most recently used)
+                    cache.move_to_end(key)
+                    return result
+                else:
+                    # Expired, remove from cache
+                    del cache[key]
             
             # Compute result
             result = func(*args, **kwargs)
             
             # Update cache with LRU eviction
-            if len(cache) >= maxsize:
-                # Remove oldest entry
-                oldest_key = min(timestamps, key=timestamps.get)
-                del cache[oldest_key]
-                del timestamps[oldest_key]
+            if maxsize is not None and len(cache) >= maxsize:
+                # Remove oldest entry (first item in OrderedDict)
+                cache.popitem(last=False)
             
-            cache[key] = result
-            timestamps[key] = current_time
+            # Add to cache with timestamp
+            cache[key] = (result, current_time)
             return result
         
         # Add cache management methods
-        wrapper.cache_clear = lambda: (cache.clear(), timestamps.clear())
+        wrapper.cache_clear = lambda: cache.clear()
         wrapper.cache_info = lambda: {
             "size": len(cache),
             "maxsize": maxsize,
@@ -97,13 +113,17 @@ def batch_operation(batch_size: int = 100):
     Decorator to batch operations for better performance.
     
     Args:
-        batch_size: Number of items to process in each batch
+        batch_size: Number of items to process in each batch (must be > 0)
     
     Example:
         @batch_operation(batch_size=50)
         def process_items(items):
             return [item * 2 for item in items]
     """
+    # Input validation
+    if not isinstance(batch_size, int) or batch_size <= 0:
+        raise ValueError(f"batch_size must be a positive integer, got {batch_size}")
+    
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(items):

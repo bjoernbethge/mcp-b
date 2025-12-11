@@ -148,16 +148,16 @@ class QCI:
         source_signal = source.signal_strength
         
         # Calculate reception for each agent based on coherence
-        # Use dict comprehension for better performance
-        receptions = {
-            agent_id: {
-                "message": message,
-                "clarity": (reception_strength := source_signal * state.coherence_level),
-                "received": reception_strength > 0.5
-            }
-            for agent_id, state in self.states.items()
-            if agent_id != from_agent
-        }
+        # Reception = source_signal * receiver_coherence
+        receptions = {}
+        for agent_id, state in self.states.items():
+            if agent_id != from_agent:
+                reception_strength = source_signal * state.coherence_level
+                receptions[agent_id] = {
+                    "message": message,
+                    "clarity": reception_strength,
+                    "received": reception_strength > 0.5
+                }
         
         return {
             "from": from_agent,
