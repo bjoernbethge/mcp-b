@@ -173,10 +173,10 @@ for p in ethic.get_by_category(EthicCategory.SAFETY):
 
 | Principle | Category | Source | Priority |
 |-----------|----------|--------|----------|
-| Human First | human_dignity | Marcel | 10 |
+| Human First | human_dignity | Bjoern | 10 |
 | No Harm | safety | Anthropic | 10 |
 | Sandbox Default | safety | WoAI | 10 |
-| User Override | autonomy | Marcel | 9 |
+| User Override | autonomy | Bjoern | 9 |
 | Data Privacy | privacy | EU AI Act | 9 |
 | Transparency | transparency | EU AI Act | 9 |
 
