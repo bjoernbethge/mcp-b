@@ -86,6 +86,17 @@ from .workflow import (
     workflow_next,
 )
 
+# Utils exports
+from .utils import (
+    timed_cache,
+    memoize_method,
+    batch_operation,
+    lazy_property,
+    cache_small,
+    cache_medium,
+    cache_large,
+)
+
 __all__ = [
     # Version
     "__version__",
@@ -140,4 +151,12 @@ __all__ = [
     "start_workflow",
     "current_workflow",
     "workflow_next",
+    # Utils
+    "timed_cache",
+    "memoize_method",
+    "batch_operation",
+    "lazy_property",
+    "cache_small",
+    "cache_medium",
+    "cache_large",
 ]

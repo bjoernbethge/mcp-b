@@ -235,13 +235,24 @@ class DatabaseBridge:
             ORDER BY count DESC
         """).fetchall()
 
-        # Agent activity
+        # Agent activity - count sent and received messages per agent
+        # Use LEFT JOIN for better performance than correlated subquery
         agent_activity = self.duck.execute("""
-            SELECT source_id, COUNT(*) as sent,
-                   (SELECT COUNT(*) FROM mcb_messages m2 WHERE m2.dest_id = m1.source_id) as received
-            FROM mcb_messages m1
-            GROUP BY source_id
-            ORDER BY sent DESC
+            SELECT 
+                sent.source_id as agent_id,
+                COALESCE(sent.sent_count, 0) as sent,
+                COALESCE(received.received_count, 0) as received
+            FROM (
+                SELECT source_id, COUNT(*) as sent_count
+                FROM mcb_messages
+                GROUP BY source_id
+            ) sent
+            LEFT JOIN (
+                SELECT dest_id, COUNT(*) as received_count
+                FROM mcb_messages
+                GROUP BY dest_id
+            ) received ON sent.source_id = received.dest_id
+            ORDER BY sent.sent_count DESC
         """).fetchall()
 
         return {
