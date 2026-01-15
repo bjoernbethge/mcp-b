@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json.schemastore.org/github-copilot-mcp.json",
+  "mcpServers": {
+    "serena": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from", "git+https://github.com/oraios/serena",
+        "serena", "start-mcp-server",
+        "--context", "ide-assistant"
+      ],
+      "description": "Serena - Semantic code analysis with symbol-level understanding, refactoring, and cross-project navigation"
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      },
+      "description": "Context7 - Up-to-date documentation and API context for accurate code generation"
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "GitHub MCP - Repository operations, issues, PRs, and code search"
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"],
+      "description": "Filesystem MCP - Safe file operations within the workspace"
+    }
+  },
+  "defaults": {
+    "codeAnalysis": "serena",
+    "documentation": "context7"
+  }
+}
