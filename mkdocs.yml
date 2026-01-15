@@ -1,0 +1,84 @@
+site_name: MCP-B Documentation
+site_description: Master Client Bridge - Agent Communication Protocol
+site_author: Björn Bethge
+site_url: https://bjoernbethge.github.io/mcp-b/
+
+repo_name: bjoernbethge/mcp-b
+repo_url: https://github.com/bjoernbethge/mcp-b
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mermaid2
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+  - User Guide:
+      - Protocol: guide/protocol.md
+      - AMUM Workflow: guide/amum.md
+      - QCI States: guide/qci.md
+      - ETHIC Principles: guide/ethic.md
+  - Agent Team:
+      - Overview: agents/overview.md
+      - Data Collection: agents/data-collector.md
+      - Data Preparation: agents/data-prep.md
+      - Model Training: agents/model-trainer.md
+      - Results Analysis: agents/results-analyst.md
+      - Visualization: agents/visualization.md
+      - Publishing: agents/publisher.md
+  - Results:
+      - Latest Results: results/latest.md
+      - Performance: results/performance.md
+  - API Reference: api/index.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/bjoernbethge/mcp-b
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/mcp-b/
