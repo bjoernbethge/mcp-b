@@ -14,5 +14,5 @@ No results published yet. Run the ML pipeline to generate results.
 
 ```bash
 # Start ML pipeline
-mcp-b start "My Model" --template ml_pipeline
+mcp-b start "My Model" -t ml_pipeline
 ```

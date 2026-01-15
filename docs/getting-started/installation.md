@@ -27,7 +27,7 @@ pip install -e ".[dev,full]"
 ## Requirements
 
 - Python 3.11+
-- Node.js 18+ (for MCP servers)
+- Node.js 20+ (for MCP servers)
 
 ## MCP Server Setup
 
