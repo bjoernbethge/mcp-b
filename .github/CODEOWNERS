@@ -1,0 +1,16 @@
+# Default owners for everything in the repo
+* @bjoernbethge
+
+# Python source code
+/src/ @bjoernbethge
+
+# Database schemas
+/schemas/ @bjoernbethge
+/sql/ @bjoernbethge
+
+# Documentation
+/docs/ @bjoernbethge
+*.md @bjoernbethge
+
+# GitHub configuration
+/.github/ @bjoernbethge

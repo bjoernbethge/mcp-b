@@ -1,0 +1,42 @@
+name: Semgrep
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 0 * * 0" # Weekly on Sunday
+
+# To enable Semgrep App features (including custom rules and Semgrep Supply Chain):
+# 1. Sign up at https://semgrep.dev/login
+# 2. Create a token at https://semgrep.dev/orgs/-/settings/tokens
+# 3. Add SEMGREP_APP_TOKEN as a repository secret in GitHub Settings > Secrets
+# Without the token, Semgrep will run with default open source rules.
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  semgrep:
+    name: Semgrep Security Scan
+    runs-on: ubuntu-latest
+
+    container:
+      image: semgrep/semgrep
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        run: semgrep scan --config auto --sarif --output=semgrep-results.sarif .
+        env:
+          # Optional: Set SEMGREP_APP_TOKEN for enhanced features
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep-results.sarif
+        if: always()
