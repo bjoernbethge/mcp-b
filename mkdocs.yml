@@ -58,6 +58,7 @@ nav:
   - Getting Started:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quickstart.md
+      - MCP Setup: mcp-setup.md
   - User Guide:
       - Protocol: guide/protocol.md
       - AMUM Workflow: guide/amum.md

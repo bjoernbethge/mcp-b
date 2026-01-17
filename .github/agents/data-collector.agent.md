@@ -6,11 +6,6 @@ infer: true
 metadata:
   emoji: "🔬"
   team: ml-pipeline
-mcp-servers:
-  serena:
-    description: "Semantic code analysis for API clients"
-  context7:
-    description: "Up-to-date API documentation lookups"
 ---
 
 # 🔬 Data Collector Agent
