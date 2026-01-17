@@ -25,37 +25,34 @@ MCP-B (Master Client Bridge) is a Python package that provides:
 
 ## Specialized Agent Roles
 
-This project uses specialized Copilot agents for different tasks in the ML/AI pipeline:
+This project uses specialized Copilot agents for different tasks in the ML/AI pipeline. Each agent is defined in `.github/agents/` as a separate `.agent.md` file with YAML frontmatter.
 
-### 🔬 Data Collector Agent
-- **Role**: Gather and ingest data from various sources
-- **Tools**: `#serena` for code analysis, `#context7` for API docs
-- **Focus**: Data sources, APIs, scraping patterns, data validation
+### Available Agents
 
-### 🧹 Data Prep Agent
-- **Role**: Clean, transform, and prepare data for training
-- **Tools**: pandas, numpy, data validation libraries
-- **Focus**: Missing values, normalization, feature engineering, data quality
+The following specialized agents are available:
 
-### 🤖 Model Trainer Agent
-- **Role**: Design, train, and optimize ML models
-- **Tools**: scikit-learn, pytorch, tensorflow, hyperparameter tuning
-- **Focus**: Model architecture, training loops, optimization, checkpoints
+- **🔬 Data Collector Agent** (`data-collector.agent.md`) - Gather and ingest data from various sources
+- **🧹 Data Prep Agent** (`data-prep.agent.md`) - Clean, transform, and prepare data for training  
+- **🤖 Model Trainer Agent** (`model-trainer.agent.md`) - Design, train, and optimize ML models
+- **📊 Results Analyst Agent** (`results-analyst.agent.md`) - Analyze model performance and generate insights
+- **🎨 Visualization Agent** (`visualization.agent.md`) - Create charts, graphs, and visual representations
+- **📝 Publisher Agent** (`publisher.agent.md`) - Generate documentation and publish to GitHub Pages
 
-### 📊 Results Analyst Agent
-- **Role**: Analyze model performance and generate insights
-- **Tools**: metrics libraries, statistical analysis
-- **Focus**: Accuracy, precision, recall, confusion matrices, reports
+### Using Agents
 
-### 🎨 Visualization Agent
-- **Role**: Create charts, graphs, and visual representations
-- **Tools**: matplotlib, plotly, seaborn, altair
-- **Focus**: Training curves, performance dashboards, publication-ready plots
+To invoke a specific agent in your workflow:
 
-### 📝 Publisher Agent
-- **Role**: Generate documentation and publish to GitHub Pages
-- **Tools**: mkdocs, sphinx, GitHub Actions
-- **Focus**: API docs, tutorials, result summaries, deployment
+```
+@agent-name your request here
+```
+
+For example:
+```
+@data-collector help me create a data pipeline to fetch user activity from the GitHub API
+@visualization create training curves for these model results
+```
+
+Each agent has detailed instructions, code patterns, and best practices in their respective `.agent.md` files.
 
 ## Code Style Guidelines
 
@@ -118,7 +115,8 @@ Dev dependencies:
 5. Use AMUM 3→6→9 alignment for human-AI decision workflows
 6. **Always use #serena for code analysis tasks**
 7. **Always use #context7 for documentation lookups**
-8. Follow the specialized agent roles for ML pipeline tasks
+8. Use the specialized agents (`.github/agents/*.agent.md`) for ML pipeline tasks
+9. Refer to individual agent files for detailed instructions and code patterns
 
 ## Workflow Commands
 
