@@ -25,9 +25,15 @@ wheels/
 venv/
 ENV/
 
+# Environment variables
+.env
+.env.local
+
 # IDE
 .idea/
-.vscode/
+.vscode/*
+!.vscode/mcp.json
+!.vscode/README.md
 *.swp
 *.swo
 

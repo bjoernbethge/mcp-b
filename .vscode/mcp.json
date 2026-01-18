@@ -5,9 +5,12 @@
       "type": "stdio",
       "command": "uvx",
       "args": [
-        "--from", "git+https://github.com/oraios/serena",
-        "serena", "start-mcp-server",
-        "--context", "ide-assistant"
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant"
       ],
       "description": "Serena - Semantic code analysis with symbol-level understanding, refactoring, and cross-project navigation"
     },
@@ -35,9 +38,5 @@
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"],
       "description": "Filesystem MCP - Safe file operations within the workspace"
     }
-  },
-  "defaults": {
-    "codeAnalysis": "serena",
-    "documentation": "context7"
   }
 }
