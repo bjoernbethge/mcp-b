@@ -16,14 +16,15 @@ When working with Python files in this repository, follow these specific guideli
 ### Type Hints
 - All function parameters must have type hints
 - All return values must have type hints
-- Use `Optional[T]` for nullable values
-- Use proper `typing` imports: `Dict`, `List`, `Tuple`, `Any`, etc.
+- For Python 3.11+, prefer built-in generic types: `list`, `dict`, `tuple`
+- Use union syntax `X | None` instead of `Optional[X]`
+- Import from `typing` only when needed: `Any`, `Callable`, etc.
 
 Example:
 ```python
-from typing import Optional, Dict, Any
+from typing import Any
 
-def process_data(data: Dict[str, Any], timeout: Optional[int] = None) -> bool:
+def process_data(data: dict[str, Any], timeout: int | None = None) -> bool:
     """Process data with optional timeout."""
     pass
 ```
@@ -35,7 +36,9 @@ def process_data(data: Dict[str, Any], timeout: Optional[int] = None) -> bool:
 
 Example:
 ```python
-def encode_message(source: str, dest: str, payload: Dict[str, Any]) -> str:
+from typing import Any
+
+def encode_message(source: str, dest: str, payload: dict[str, Any]) -> str:
     """
     Encode a message using MCP-B protocol.
     
@@ -77,13 +80,12 @@ except SpecificError as e:
 ### Dataclasses for Data Structures
 ```python
 from dataclasses import dataclass
-from typing import Optional
 
 @dataclass
 class MCBAgent:
     agent_id: str
     name: str
-    capabilities: Optional[list[str]] = None
+    capabilities: list[str] | None = None
 ```
 
 ### Performance Decorators
