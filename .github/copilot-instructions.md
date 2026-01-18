@@ -61,6 +61,9 @@ Each agent has detailed instructions, code patterns, and best practices in their
 - Maximum line length: 100 characters (configured in ruff and black)
 - Use docstrings for all public functions, classes, and modules
 - Prefer explicit over implicit code
+- **Always run `black src/` to format code before committing**
+- **Always run `ruff check --fix src/` to fix linting issues**
+- Remove unused imports and fix f-string issues flagged by ruff
 
 ## Project Structure
 
@@ -93,6 +96,9 @@ Used for connection state tracking with flags for CONNECTED, AUTHENTICATED, ENCR
 - Tests are in `test_utils.py` and should use pytest
 - Run tests with: `pytest -v`
 - Follow existing test patterns using assertions
+- **Always run tests before committing changes**: `pytest -v`
+- If tests fail, ensure your changes are compatible with existing tests
+- Don't remove or modify tests unless explicitly required by the task
 
 ## Dependencies
 
@@ -120,15 +126,45 @@ Dev dependencies:
 
 ## Workflow Commands
 
+### Development Setup
 ```bash
-# Development
-pip install -e ".[dev]"      # Install with dev dependencies
-pytest -v                     # Run tests
-ruff check src/              # Lint code
-black src/                   # Format code
+# Install package with dev dependencies
+pip install -e ".[dev]"
 
-# CLI Usage
+# Or use uv for faster installation
+uv pip install -e ".[dev]"
+```
+
+### Code Quality (Always Run Before Committing)
+```bash
+# Format code with black
+black src/
+
+# Lint and fix issues with ruff
+ruff check --fix src/
+
+# Or just check without fixing
+ruff check src/
+
+# Run all tests
+pytest -v
+
+# Run specific test
+pytest test_utils.py -v
+```
+
+### CLI Usage
+```bash
 mcp-b demo                   # Run demo
-mcp-b start "task"           # Start workflow
-mcp-b status                 # Check status
+mcp-b version                # Show version
+mcp-b encode "Hello" -s 5510 -d 7C1     # Encode message
+mcp-b decode "5510 7C1 ..."             # Decode message
+mcp-b ethic list                        # List ethical principles
+mcp-b qci status                        # QCI network status
+```
+
+### Before Creating Pull Requests
+Always run these commands to ensure code quality:
+```bash
+black src/ && ruff check --fix src/ && pytest -v
 ```
